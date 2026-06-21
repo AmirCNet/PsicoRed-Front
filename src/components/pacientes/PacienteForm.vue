@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, onMounted, nextTick } from 'vue'
+import { getProfesionales } from '../../services/profesionalService'
 
 const props = defineProps({
   paciente: {
@@ -10,6 +11,8 @@ const props = defineProps({
 
 const emit = defineEmits(['guardar', 'cerrar'])
 
+const profesionales = ref([])
+
 const form = ref({
   nombre: '',
   apellido: '',
@@ -19,7 +22,7 @@ const form = ref({
   fecha_nacimiento: '',
   motivo_consulta: '',
   estado: 'activo',
-  derivadoA: '',
+  profesional_id: null,
   notas: ''
 })
 
@@ -61,7 +64,7 @@ watch(
         fecha_nacimiento: '',
         motivo_consulta: '',
         estado: 'activo',
-        derivadoA: '',
+        profesional_id: '',
         notas: ''
       }
     }
@@ -72,6 +75,19 @@ watch(
 const formValido = () => {
   return form.value.nombre && form.value.apellido && form.value.email && form.value.telefono && form.value.direccion
 }
+
+const cargarProfesionales = async () => {
+  try {
+    profesionales.value = await getProfesionales()
+  } catch (err) {
+    console.error('Error al cargar profesionales', err)
+    profesionales.value = []
+  }
+}
+
+onMounted(() => {
+  cargarProfesionales()
+})
 
 const guardar = () => {
   if (!formValido()) {
@@ -142,10 +158,15 @@ const guardar = () => {
             <option value="inactivo">Inactivo</option>
           </select>
         </div>
-
-        <div v-if="form.estado === 'derivado'" class="campo">
-          <label>Derivado a (profesional)</label>
-          <input v-model="form.derivadoA" type="text" placeholder="Nombre del profesional al que se derivó" />
+        
+        <div class="campo">
+          <label>Profesional asignado</label>
+          <select v-model="form.profesional_id">
+            <option :value="null">Sin asignar</option>
+            <option v-for="prof in profesionales" :key="prof.id" :value="prof.id">
+              {{ prof.nombre }} {{ prof.apellido }}
+            </option>
+          </select>
         </div>
 
         <div class="campo">
