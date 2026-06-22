@@ -1,6 +1,9 @@
 <script setup>
 import { ref, watch, onMounted, nextTick } from 'vue'
 import { getProfesionales } from '../../services/profesionalService'
+import { getUsuario } from '../../services/authService'
+
+const esAdmin = ref(getUsuario()?.rol === 'administrador')
 
 const props = defineProps({
   paciente: {
@@ -117,32 +120,32 @@ const guardar = () => {
       <form ref="formEl" class="modal-body" @submit.prevent="guardar">
         <div class="campo">
           <label>Nombre *</label>
-          <input v-model="form.nombre" type="text" placeholder="Nombre" required />
+          <input v-model="form.nombre" type="text" :readonly="!esAdmin" placeholder="Nombre" required />
         </div>
 
         <div class="campo">
           <label>Apellido *</label>
-          <input v-model="form.apellido" type="text" placeholder="Apellido" required />
+          <input v-model="form.apellido" type="text" :readonly="!esAdmin" placeholder="Apellido" required />
         </div>
 
         <div class="campo">
           <label>Email *</label>
-          <input v-model="form.email" type="email" placeholder="correo@psicored.com" required />
+          <input v-model="form.email" type="email" :readonly="!esAdmin" placeholder="correo@psicored.com" required />
         </div>
 
         <div class="campo">
           <label>Teléfono *</label>
-          <input v-model="form.telefono" type="text" placeholder="+54 9 11 0000-0000" required />
+          <input v-model="form.telefono" type="text" :readonly="!esAdmin" placeholder="+54 9 11 0000-0000" required />
         </div>
 
         <div class="campo">
           <label>Dirección *</label>
-          <input v-model="form.direccion" type="text" placeholder="Dirección" required />
+          <input v-model="form.direccion" type="text" :readonly="!esAdmin" placeholder="Dirección" required />
         </div>
 
         <div class="campo">
           <label>Fecha de nacimiento</label>
-          <input v-model="form.fecha_nacimiento" type="date" :max="today" />
+          <input v-model="form.fecha_nacimiento" type="date" :readonly="!esAdmin" :max="today" />
         </div>
 
         <div class="campo">
@@ -155,11 +158,11 @@ const guardar = () => {
           <select v-model="form.estado">
             <option value="activo">Activo</option>
             <option value="derivado">Derivado</option>
-            <option value="inactivo">Inactivo</option>
+            <option value="alta">Alta</option>
           </select>
         </div>
         
-        <div class="campo">
+        <div class="campo" v-if="esAdmin">
           <label>Profesional asignado</label>
           <select v-model="form.profesional_id">
             <option :value="null">Sin asignar</option>

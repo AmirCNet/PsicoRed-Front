@@ -49,7 +49,7 @@ const eliminar = async (id) => {
   <div class="profesionales-page">
     <div class="page-header">
       <h1>Gestión de Profesionales</h1>
-      <button class="btn-agregar" @click="abrirAgregar" v-if="esAdmin">+ Agregar profesional</button>
+      <button class="btn-agregar" @click="abrirAgregar">+ Agregar profesional</button>
     </div>
 
     <div class="grid">
