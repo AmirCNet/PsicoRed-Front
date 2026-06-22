@@ -8,7 +8,7 @@ import PacienteForm from './PacienteForm.vue'
 const pacientes = ref([])
 const profesionales = ref([])
 
-const esAdmin = ref(getUsuario()?.rol === 'admin')
+const esAdmin = ref(getUsuario()?.rol === 'administrador')
 
 // Variables reactivas para los filtros
 const searchQuery = ref('')
