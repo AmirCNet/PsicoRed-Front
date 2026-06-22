@@ -111,7 +111,7 @@ const eliminar = async (id) => {
   <div class="pacientes-page">
     <div class="page-header">
       <h1>Gestión de Pacientes</h1>
-      <button class="btn-agregar" @click="abrirAgregar">+ Agregar paciente</button>
+      <button class="btn-agregar" @click="abrirAgregar" v-if="esAdmin">+ Agregar paciente</button>
     </div>
 
     <div class="filters-bar">
