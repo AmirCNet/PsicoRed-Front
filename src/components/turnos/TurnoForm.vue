@@ -20,42 +20,44 @@ const profesionales = ref([])
 const profesionalesFiltrados = ref([])
 const miPerfil = ref(null)
 const derivaciones = ref([])
+const loading = ref(true)
+
+// Separate date and time parts for cleaner UI selection
+const fechaPart = ref('')
+const horaPart = ref('')
 
 const form = ref({
   paciente_id: '',
   profesional_id: '',
-  fecha_hora: '',
   duracion_minutos: 50,
   estado: 'programado',
   notas_sesion: ''
 })
 
-// Helper to format date for datetime-local input (YYYY-MM-DDThh:mm)
-const formatFechaParaInput = (isoString) => {
-  if (!isoString) return ''
-  const date = new Date(isoString)
-  const pad = (num) => String(num).padStart(2, '0')
-  const yyyy = date.getFullYear()
-  const mm = pad(date.getMonth() + 1)
-  const dd = pad(date.getDate())
-  const hh = pad(date.getHours())
-  const min = pad(date.getMinutes())
-  return `${yyyy}-${mm}-${dd}T${hh}:${min}`
-}
-
 watch(
   () => props.turno,
   (val) => {
     if (val) {
+      // Split ISO string to local Date and Time parts
+      const d = new Date(val.fecha_hora)
+      const pad = (num) => String(num).padStart(2, '0')
+      fechaPart.value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+      horaPart.value = `${pad(d.getHours())}:${pad(d.getMinutes())}`
+
+      // Assign only writeable fields to form, stripping out joined relations like creado_por_usuario, paciente, etc.
       form.value = {
-        ...val,
-        fecha_hora: formatFechaParaInput(val.fecha_hora)
+        paciente_id: val.paciente_id,
+        profesional_id: val.profesional_id,
+        duracion_minutos: val.duracion_minutos,
+        estado: val.estado,
+        notas_sesion: val.notas_sesion || ''
       }
     } else {
+      fechaPart.value = ''
+      horaPart.value = ''
       form.value = {
         paciente_id: '',
         profesional_id: esAdmin.value ? '' : (miPerfil.value?.id || ''),
-        fecha_hora: '',
         duracion_minutos: 50,
         estado: 'programado',
         notas_sesion: ''
@@ -69,7 +71,9 @@ watch(
 watch(
   () => form.value.paciente_id,
   (newPacienteId) => {
-    if (!esAdmin.value) return // If not admin, the professional is already locked to miPerfil
+    if (!esAdmin.value && !props.turno) return // If not admin and not editing, professional is locked to miPerfil
+    if (loading.value) return // Exit early if initial data is still loading
+    
     if (!newPacienteId) {
       profesionalesFiltrados.value = []
       return
@@ -92,14 +96,15 @@ watch(
 
 onMounted(async () => {
   try {
+    loading.value = true
     // 1. Fetch all accepted derivations
     const allDerivs = await getDerivaciones({ estado: 'aceptada' })
     derivaciones.value = allDerivs
 
+    // Fetch all professionals (needed by both admin and professional in edit mode)
+    profesionales.value = await getProfesionales()
+
     if (esAdmin.value) {
-      // Fetch all professionals first
-      profesionales.value = await getProfesionales()
-      
       // Admin sees all patients who have at least one accepted derivation
       const uniquePatients = []
       const seenIds = new Set()
@@ -111,7 +116,6 @@ onMounted(async () => {
       }
       pacientes.value = uniquePatients
     } else {
-      // Get the logged-in professional's profile
       miPerfil.value = await getMiPerfil()
       if (miPerfil.value) {
         if (!form.value.profesional_id) {
@@ -131,13 +135,22 @@ onMounted(async () => {
         pacientes.value = uniquePatients
       }
     }
+
+    // Pre-filter professionals for edit mode if patient is already selected (for both admin and professional)
+    if (form.value.paciente_id) {
+      const derivsPaciente = allDerivs.filter(d => d.paciente_id === form.value.paciente_id)
+      const profIds = derivsPaciente.map(d => d.profesional_id)
+      profesionalesFiltrados.value = profesionales.value.filter(p => profIds.includes(p.id))
+    }
   } catch (err) {
     console.error('Error al cargar datos del formulario de turnos:', err)
+  } finally {
+    loading.value = false
   }
 })
 
 const formValido = () => {
-  return form.value.paciente_id && form.value.profesional_id && form.value.fecha_hora && form.value.duracion_minutos > 0
+  return form.value.paciente_id && form.value.profesional_id && fechaPart.value && horaPart.value && form.value.duracion_minutos > 0
 }
 
 const guardar = () => {
@@ -146,10 +159,20 @@ const guardar = () => {
     return
   }
 
-  // Convert the input datetime-local to ISO string
+  // Combine the date and time strings into a single Date object
+  const dateObj = new Date(`${fechaPart.value}T${horaPart.value}`)
+  if (isNaN(dateObj.getTime())) {
+    alert('La fecha u hora ingresada no es válida.')
+    return
+  }
+
   const datos = {
-    ...form.value,
-    fecha_hora: new Date(form.value.fecha_hora).toISOString()
+    paciente_id: form.value.paciente_id,
+    profesional_id: form.value.profesional_id,
+    fecha_hora: dateObj.toISOString(),
+    duracion_minutos: form.value.duracion_minutos,
+    estado: form.value.estado,
+    notas_sesion: form.value.notas_sesion
   }
 
   emit('guardar', datos)
@@ -178,9 +201,9 @@ const guardar = () => {
           </p>
         </div>
 
-        <div class="campo" v-if="esAdmin">
+        <div class="campo" v-if="esAdmin || (turno && profesionalesFiltrados.length > 1)">
           <label>Profesional *</label>
-          <select v-model="form.profesional_id" required :disabled="turno || !form.paciente_id">
+          <select v-model="form.profesional_id" required :disabled="(turno && turno.estado !== 'programado') || !form.paciente_id">
             <option value="" disabled>
               {{ form.paciente_id ? 'Seleccione un profesional' : 'Primero seleccione un paciente' }}
             </option>
@@ -193,9 +216,15 @@ const guardar = () => {
           </p>
         </div>
 
-        <div class="campo">
-          <label>Fecha y Hora *</label>
-          <input v-model="form.fecha_hora" type="datetime-local" required />
+        <div class="campo-datetime-row">
+          <div class="campo">
+            <label>Fecha *</label>
+            <input v-model="fechaPart" type="date" required />
+          </div>
+          <div class="campo">
+            <label>Hora *</label>
+            <input v-model="horaPart" type="time" required />
+          </div>
         </div>
 
         <div class="campo">
@@ -312,6 +341,13 @@ const guardar = () => {
 
 .campo:has(textarea) {
   grid-column: 1 / -1;
+}
+
+.campo-datetime-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
 .campo label {
