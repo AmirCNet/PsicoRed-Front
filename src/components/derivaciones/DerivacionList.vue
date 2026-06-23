@@ -54,6 +54,16 @@ const guardar = async (datos) => {
     if (derivacionEditando.value) {
       await updateDerivacion(derivacionEditando.value.id, datos)
     } else {
+      // Validación en Frontend para evitar duplicaciones activas (pendiente o aceptada)
+      const existeDuplicada = derivaciones.value.some(d => 
+        d.paciente_id === datos.paciente_id && 
+        d.profesional_id === datos.profesional_id && 
+        ['pendiente', 'aceptada'].includes(d.estado)
+      )
+      if (existeDuplicada) {
+        alert('Este paciente ya tiene una derivación pendiente o activa con el mismo profesional.')
+        return
+      }
       await createDerivacion(datos)
     }
     derivaciones.value = await getDerivaciones()
@@ -98,9 +108,12 @@ const inicialPaciente = (d) => {
 
 const formatFecha = (iso) => {
   if (!iso) return ''
-  return new Date(iso).toLocaleDateString('es-AR', {
-    day: '2-digit', month: 'short', year: 'numeric'
-  })
+  const date = new Date(iso)
+  if (isNaN(date.getTime())) return ''
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}/${month}/${year}`
 }
 
 const estadoClase = (estado) => {
@@ -134,47 +147,53 @@ const estadoLabel = (estado) => {
       </div>
     </div>
 
-    <div class="grid">
-      <div v-for="d in derivacionesFiltradas" :key="d.id" class="card">
-        <div class="card-top">
+    <!-- Lista de Derivaciones en Formato Fila Horizontal -->
+    <div class="lista-derivaciones">
+      <div v-for="d in derivacionesFiltradas" :key="d.id" class="derivacion-item" :class="d.estado">
+        
+        <div class="derivacion-paciente">
           <div class="card-avatar">{{ inicialPaciente(d) }}</div>
+          <div class="nombre-box">
+            <span class="label-seccion">Paciente</span>
+            <strong class="paciente-nombre">{{ nombrePaciente(d) }}</strong>
+          </div>
+        </div>
+
+        <div class="derivacion-profesional">
+          <div class="nombre-box">
+            <span class="label-seccion">Profesional Destino</span>
+            <strong>{{ nombreProfesional(d) }}</strong>
+          </div>
+        </div>
+
+        <div class="derivacion-meta">
+          <div class="nombre-box">
+            <span class="label-seccion">Fecha Derivación</span>
+            <span>{{ formatFecha(d.creado_en) }}</span>
+          </div>
+        </div>
+
+        <div class="derivacion-motivo" v-if="d.motivo">
+          <span class="label-seccion">Motivo</span>
+          <span class="motivo-texto" :title="d.motivo">{{ d.motivo }}</span>
+        </div>
+
+        <div class="derivacion-status">
           <span class="badge-estado" :class="estadoClase(d.estado)">
             {{ estadoLabel(d.estado) }}
           </span>
         </div>
 
-        <div class="card-body">
-          <h3 class="card-nombre">{{ nombrePaciente(d) }}</h3>
-
-          <div class="card-info">
-            <div class="info-row">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                   fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-              <span>{{ nombreProfesional(d) }}</span>
-            </div>
-
-            <div class="info-row">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                   fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
-              </svg>
-              <span>{{ formatFecha(d.creado_en) }}</span>
-            </div>
-          </div>
-
-          <p v-if="d.motivo" class="card-motivo">{{ d.motivo }}</p>
+        <div class="derivacion-actions">
+          <button class="btn-icon btn-editar" @click="abrirEditar(d)" title="Editar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          </button>
+          
+          <button class="btn-icon btn-eliminar" @click="eliminar(d.id)" title="Eliminar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+          </button>
         </div>
 
-        <div class="card-actions">
-          <button class="btn-editar" @click="abrirEditar(d)">Editar</button>
-          <button class="btn-eliminar" @click="eliminar(d.id)">Eliminar</button>
-        </div>
       </div>
     </div>
 
@@ -251,43 +270,51 @@ const estadoLabel = (estado) => {
   background: #6e1832;
 }
 
-/* Grid */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-}
-
-/* Card */
-.card {
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  padding: 1.5rem;
+/* Layout List (Row design matching pacients & turnos) */
+.lista-derivaciones {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(139, 30, 63, 0.12);
-}
-
-.card-top {
+.derivacion-item {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-left: 5px solid #8b1e3f;
+}
+
+/* Border colors according to status */
+.derivacion-item.pendiente { border-left-color: #f1c40f; }
+.derivacion-item.aceptada { border-left-color: #2ecc71; }
+.derivacion-item.rechazada { border-left-color: #e74c3c; }
+.derivacion-item.completada { border-left-color: #3498db; }
+
+.derivacion-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(139, 30, 63, 0.08);
+}
+
+.derivacion-paciente {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 220px;
+  flex-shrink: 0;
 }
 
 .card-avatar {
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: linear-gradient(135deg, #8b1e3f, #c0496a);
   color: white;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -295,117 +322,91 @@ const estadoLabel = (estado) => {
   flex-shrink: 0;
 }
 
-/* Badges de estado */
-.badge-estado {
-  font-size: 0.75rem;
+.nombre-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.label-seccion {
+  font-size: 0.72rem;
+  color: #888;
+  text-transform: uppercase;
   font-weight: 600;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  text-transform: capitalize;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.15rem;
 }
 
-.badge-pendiente {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.badge-aceptada {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.badge-rechazada {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.badge-completada {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.card-nombre {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #1a1a2e;
-  margin: 0;
-}
-
-.card-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.info-row {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  color: #666;
-}
-
-.info-row svg {
-  color: #999;
+.derivacion-profesional {
+  width: 220px;
   flex-shrink: 0;
 }
 
-.card-motivo {
-  font-size: 0.85rem;
-  color: #555;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.4;
-  background: #faf5f0;
-  padding: 0.5rem 0.7rem;
-  border-radius: 8px;
-  border-left: 3px solid #e5d6db;
+.derivacion-meta {
+  width: 140px;
+  flex-shrink: 0;
 }
 
-.card-actions {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: auto;
-}
-
-.btn-editar,
-.btn-eliminar {
+.derivacion-motivo {
   flex: 1;
-  padding: 0.45rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+}
+
+.motivo-texto {
+  font-size: 0.9rem;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-style: italic;
+}
+
+.derivacion-status {
+  width: 110px;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Badges */
+.badge-estado {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+}
+
+.badge-pendiente { background: #fef9e7; color: #f1c40f; }
+.badge-aceptada { background: #eafaf1; color: #2ecc71; }
+.badge-rechazada { background: #fdedec; color: #e74c3c; }
+.badge-completada { background: #e8f4fd; color: #3498db; }
+
+.derivacion-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   border-radius: 8px;
-  font-weight: 600;
   cursor: pointer;
-  font-size: 0.85rem;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
-.btn-editar {
-  background: #f0f0f0;
-  color: #333;
-}
+.btn-editar { background: #f0f0f0; color: #555; }
+.btn-editar:hover { background: #e0e0e0; color: #1a1a2e; }
 
-.btn-editar:hover {
-  background: #e0e0e0;
-}
-
-.btn-eliminar {
-  background: #fdecea;
-  color: #c0392b;
-}
-
-.btn-eliminar:hover {
-  background: #f5b7b1;
-}
+.btn-eliminar { background: #fdecea; color: #c0392b; }
+.btn-eliminar:hover { background: #f5b7b1; color: #a93226; }
 
 .empty-state {
   text-align: center;
