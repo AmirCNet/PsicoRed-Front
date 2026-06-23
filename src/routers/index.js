@@ -4,6 +4,7 @@ import Dashboard from '../views/Dashboard.vue'
 import Profesionales from '../views/Profesionales.vue'
 import Pacientes from '../views/Pacientes.vue'
 import Derivaciones from '../views/Derivaciones.vue'
+import Turnos from '../views/Turnos.vue'
 import Pendiente from '../views/Pendiente.vue'
 import CompletarPerfil from '../views/CompletarPerfil.vue'
 import { isAuthenticated, getUsuario } from '../services/authService'
@@ -49,6 +50,11 @@ const routes = [
     path: '/derivaciones',
     component: Derivaciones,
     meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/turnos',
+    component: Turnos,
+    meta: { requiresAuth: true }
   }
 ]
 
