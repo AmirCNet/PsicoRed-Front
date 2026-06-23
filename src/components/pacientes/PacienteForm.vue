@@ -1,9 +1,5 @@
 <script setup>
 import { ref, watch, onMounted, nextTick } from 'vue'
-import { getProfesionales } from '../../services/profesionalService'
-import { getUsuario } from '../../services/authService'
-
-const esAdmin = ref(getUsuario()?.rol === 'administrador')
 
 const props = defineProps({
   paciente: {
@@ -14,8 +10,6 @@ const props = defineProps({
 
 const emit = defineEmits(['guardar', 'cerrar'])
 
-const profesionales = ref([])
-
 const form = ref({
   nombre: '',
   apellido: '',
@@ -25,7 +19,7 @@ const form = ref({
   fecha_nacimiento: '',
   motivo_consulta: '',
   estado: 'activo',
-  profesional_id: null,
+  derivadoA: '',
   notas: ''
 })
 
@@ -67,7 +61,7 @@ watch(
         fecha_nacimiento: '',
         motivo_consulta: '',
         estado: 'activo',
-        profesional_id: '',
+        derivadoA: '',
         notas: ''
       }
     }
@@ -78,19 +72,6 @@ watch(
 const formValido = () => {
   return form.value.nombre && form.value.apellido && form.value.email && form.value.telefono && form.value.direccion
 }
-
-const cargarProfesionales = async () => {
-  try {
-    profesionales.value = await getProfesionales()
-  } catch (err) {
-    console.error('Error al cargar profesionales', err)
-    profesionales.value = []
-  }
-}
-
-onMounted(() => {
-  cargarProfesionales()
-})
 
 const guardar = () => {
   if (!formValido()) {
@@ -120,32 +101,32 @@ const guardar = () => {
       <form ref="formEl" class="modal-body" @submit.prevent="guardar">
         <div class="campo">
           <label>Nombre *</label>
-          <input v-model="form.nombre" type="text" :readonly="!esAdmin" placeholder="Nombre" required />
+          <input v-model="form.nombre" type="text" placeholder="Nombre" required />
         </div>
 
         <div class="campo">
           <label>Apellido *</label>
-          <input v-model="form.apellido" type="text" :readonly="!esAdmin" placeholder="Apellido" required />
+          <input v-model="form.apellido" type="text" placeholder="Apellido" required />
         </div>
 
         <div class="campo">
           <label>Email *</label>
-          <input v-model="form.email" type="email" :readonly="!esAdmin" placeholder="correo@psicored.com" required />
+          <input v-model="form.email" type="email" placeholder="correo@psicored.com" required />
         </div>
 
         <div class="campo">
           <label>Teléfono *</label>
-          <input v-model="form.telefono" type="text" :readonly="!esAdmin" placeholder="+54 9 11 0000-0000" required />
+          <input v-model="form.telefono" type="text" placeholder="+54 9 11 0000-0000" required />
         </div>
 
         <div class="campo">
           <label>Dirección *</label>
-          <input v-model="form.direccion" type="text" :readonly="!esAdmin" placeholder="Dirección" required />
+          <input v-model="form.direccion" type="text" placeholder="Dirección" required />
         </div>
 
         <div class="campo">
           <label>Fecha de nacimiento</label>
-          <input v-model="form.fecha_nacimiento" type="date" :readonly="!esAdmin" :max="today" />
+          <input v-model="form.fecha_nacimiento" type="date" :max="today" />
         </div>
 
         <div class="campo">
@@ -158,18 +139,13 @@ const guardar = () => {
           <select v-model="form.estado">
             <option value="activo">Activo</option>
             <option value="derivado">Derivado</option>
-            <option value="alta">Alta</option>
+            <option value="inactivo">Inactivo</option>
           </select>
         </div>
-        
-        <div class="campo" v-if="esAdmin">
-          <label>Profesional asignado</label>
-          <select v-model="form.profesional_id">
-            <option :value="null">Sin asignar</option>
-            <option v-for="prof in profesionales" :key="prof.id" :value="prof.id">
-              {{ prof.nombre }} {{ prof.apellido }}
-            </option>
-          </select>
+
+        <div v-if="form.estado === 'derivado'" class="campo">
+          <label>Derivado a (profesional)</label>
+          <input v-model="form.derivadoA" type="text" placeholder="Nombre del profesional al que se derivó" />
         </div>
 
         <div class="campo">
