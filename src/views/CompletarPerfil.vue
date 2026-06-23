@@ -32,7 +32,14 @@
         <div class="form-row">
           <div class="form-group">
             <label for="matricula">Matrícula</label>
-            <input id="matricula" v-model="form.matricula" type="text" placeholder="Ej: MP-1234" />
+            <input
+              id="matricula"
+              v-model="form.matricula"
+              type="text"
+              placeholder="Ej: MP-1234"
+              :class="{ 'input-error': errores.matricula }"
+            />
+            <span v-if="errores.matricula" class="error-hint">{{ errores.matricula }}</span>
           </div>
           <div class="form-group">
             <label for="telefono">Teléfono</label>
@@ -55,6 +62,31 @@
           <input id="honorarios" v-model.number="form.honorarios" type="number" min="0" step="0.01" placeholder="0.00" />
         </div>
 
+        <!-- Especializaciones (checkboxes) -->
+        <div class="form-group full">
+          <label>Especializaciones</label>
+          <div v-if="cargandoEsps" class="esp-loading">Cargando especializaciones…</div>
+          <div v-else-if="todasEspecializaciones.length === 0" class="esp-loading">
+            No hay especializaciones registradas aún.
+          </div>
+          <div v-else class="esp-grid">
+            <label
+              v-for="esp in todasEspecializaciones"
+              :key="esp.id"
+              class="esp-chip"
+              :class="{ 'esp-chip-active': form.especializacion_ids.includes(esp.id) }"
+            >
+              <input
+                type="checkbox"
+                :checked="form.especializacion_ids.includes(esp.id)"
+                @change="toggleEsp(esp.id)"
+                class="esp-checkbox"
+              />
+              <span>{{ esp.nombre }}</span>
+            </label>
+          </div>
+        </div>
+
         <div v-if="error" class="form-error">{{ error }}</div>
 
         <button type="submit" class="btn-primary" :disabled="loading">
@@ -70,16 +102,21 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 import { crearMiPerfil } from '../services/profesionalService'
+import { getEspecializaciones } from '../services/especializacionesService'
 
 const router    = useRouter()
 const authStore = useAuthStore()
 
 const loading = ref(false)
 const error   = ref('')
+const errores = ref({})
+
+const todasEspecializaciones = ref([])
+const cargandoEsps = ref(true)
 
 const form = ref({
   nombre:     '',
@@ -87,14 +124,49 @@ const form = ref({
   matricula:  '',
   telefono:   '',
   biografia:  '',
-  honorarios: null
+  honorarios: null,
+  especializacion_ids: []
 })
+
+// ── Cargar especializaciones disponibles
+onMounted(async () => {
+  try {
+    todasEspecializaciones.value = await getEspecializaciones()
+  } catch (err) {
+    console.error('Error al cargar especializaciones', err)
+    todasEspecializaciones.value = []
+  } finally {
+    cargandoEsps.value = false
+  }
+})
+
+// ── Toggle de especializaciones
+const toggleEsp = (id) => {
+  const idx = form.value.especializacion_ids.indexOf(id)
+  if (idx === -1) {
+    form.value.especializacion_ids.push(id)
+  } else {
+    form.value.especializacion_ids.splice(idx, 1)
+  }
+}
+
+// ── Validación de matrícula
+const validarMatricula = (valor) => {
+  if (!valor) return true // es opcional
+  return /^[A-Za-z]{1,5}[.\-\s]?\s?\d{1,6}$/.test(valor.trim())
+}
 
 const handleSubmit = async () => {
   error.value = ''
+  errores.value = {}
 
   if (!form.value.nombre.trim() || !form.value.apellido.trim()) {
     error.value = 'El nombre y apellido son obligatorios.'
+    return
+  }
+
+  if (form.value.matricula && !validarMatricula(form.value.matricula)) {
+    errores.value.matricula = 'Formato inválido. Ej: MP-1234, MN 5678'
     return
   }
 
@@ -107,7 +179,8 @@ const handleSubmit = async () => {
       matricula:  form.value.matricula.trim() || null,
       telefono:   form.value.telefono.trim() || null,
       biografia:  form.value.biografia.trim() || null,
-      honorarios: form.value.honorarios || null
+      honorarios: form.value.honorarios || null,
+      especializacion_ids: form.value.especializacion_ids
     }
 
     await crearMiPerfil(datos)
@@ -140,7 +213,7 @@ const cerrarSesion = () => {
   background: var(--white);
   border-radius: 20px;
   padding: 2.5rem 2.25rem;
-  max-width: 560px;
+  max-width: 600px;
   width: 100%;
   box-shadow: 0 8px 40px rgba(77, 14, 11, 0.10);
   border: 1px solid var(--rose-light);
@@ -243,6 +316,63 @@ const cerrarSesion = () => {
 .form-group input::placeholder,
 .form-group textarea::placeholder {
   color: #b8a8a0;
+}
+
+/* ── Validación inline */
+.input-error {
+  border-color: var(--error) !important;
+}
+
+.error-hint {
+  font-size: 0.78rem;
+  color: var(--error);
+  font-weight: 500;
+}
+
+/* ── Especializaciones (chips) */
+.esp-loading {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  padding: 0.5rem 0;
+}
+
+.esp-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.esp-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: all 0.18s;
+  user-select: none;
+}
+
+.esp-chip:hover {
+  border-color: var(--rose);
+  color: var(--wine);
+}
+
+.esp-chip-active {
+  background: var(--rose-light);
+  border-color: var(--rose);
+  color: var(--wine);
+  font-weight: 600;
+}
+
+.esp-checkbox {
+  display: none;
 }
 
 /* ── Error */
