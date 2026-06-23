@@ -345,7 +345,7 @@ const eliminar = async (id) => {
 /* Colores dinámicos para los estados */
 .badge-estado.activo { background: #e8f8f5; color: #1abc9c; }
 .badge-estado.inactivo { background: #fdecea; color: #e74c3c; }
-.badge-estado.alta { background: #fef9e7; color: #f39c12; }
+.badge-estado.alta { background: #e4d7eb; color: #7909b1; }
 
 /* Botones Iconos */
 .card-actions {
