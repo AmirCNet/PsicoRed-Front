@@ -1,25 +1,20 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { getPacientes, createPaciente, updatePaciente, deletePaciente } from '../../services/pacientesService'
-import { getProfesionales } from '../../services/profesionalService'
-import {getUsuario} from '../../services/authService'
+import { getUsuario } from '../../services/authService'
 import PacienteForm from './PacienteForm.vue'
 
 const pacientes = ref([])
-const profesionales = ref([])
-
 const esAdmin = ref(getUsuario()?.rol === 'administrador')
 
 // Variables reactivas para los filtros
 const searchQuery = ref('')
 const filterEstado = ref('')
-const filterProfesional = ref('')
 
 // Cargar datos al montar el componente
 onMounted(async () => {
   try {
     pacientes.value = await getPacientes()
-    profesionales.value = await getProfesionales()
   } catch (err) {
     console.error('Error al obtener pacientes', err)
     alert(err.message || 'Error al obtener pacientes')
@@ -33,11 +28,8 @@ const pacientesFiltrados = computed(() => {
     const coincideTexto = nombreCompleto.includes(searchQuery.value.toLowerCase())
     const estadoDB = (p.estado || '').toLowerCase() 
     const coincideEstado = filterEstado.value === '' || estadoDB === filterEstado.value
-    const coincideProf = filterProfesional.value === '' || 
-      (filterProfesional.value === 'sin_asignar' && !p.profesional_id) ||
-      (p.profesional_id == filterProfesional.value)
 
-    return coincideTexto && coincideEstado && coincideProf
+    return coincideTexto && coincideEstado
   })
 
   return filtrados.sort((a, b) => {
@@ -51,11 +43,11 @@ const pacientesFiltrados = computed(() => {
   })
 })
 
-
-
-// Modal
+// Modales
 const modalAbierto = ref(false)
 const pacienteEditando = ref(null)
+const modalDetallesAbierto = ref(false)
+const pacienteDetalle = ref(null)
 const cargando = ref(false)
 
 const abrirAgregar = () => {
@@ -71,6 +63,16 @@ const abrirEditar = (paciente) => {
 const cerrarModal = () => {
   modalAbierto.value = false
   pacienteEditando.value = null
+}
+
+const abrirDetalles = (paciente) => {
+  pacienteDetalle.value = paciente
+  modalDetallesAbierto.value = true
+}
+
+const cerrarDetalles = () => {
+  modalDetallesAbierto.value = false
+  pacienteDetalle.value = null
 }
 
 const guardar = async (datos) => {
@@ -104,7 +106,6 @@ const eliminar = async (id) => {
     cargando.value = false
   }
 }
-
 </script>
 
 <template>
@@ -119,22 +120,12 @@ const eliminar = async (id) => {
         <input type="text" v-model="searchQuery" placeholder="🔍 Buscar por nombre o apellido..." />
       </div>
       
-      <div class="filter-group" v-if="esAdmin">
+      <div class="filter-group">
         <select v-model="filterEstado">
           <option value="">Todos los estados</option>
           <option value="activo">Activos</option>
           <option value="alta">Alta</option>
           <option value="inactivo">Inactivos</option>
-        </select>
-      </div>
-
-      <div class="filter-group" v-if="esAdmin">
-        <select v-model="filterProfesional">
-          <option value="">Cualquier profesional</option>
-          <option value="sin_asignar">Sin asignar</option>
-          <option v-for="prof in profesionales" :key="prof.id" :value="prof.id">
-            {{ prof.nombre }} {{ prof.apellido }}
-          </option>
         </select>
       </div>
     </div>
@@ -145,10 +136,16 @@ const eliminar = async (id) => {
         <div class="card-avatar">{{ p.nombre.charAt(0) }}</div>
         
         <div class="card-body">
-          <h3 class="card-nombre">{{ p.nombre || '' }} {{ p.apellido || '' }}</h3>
-          <div class="card-info" v-if="p.profesional?.nombre">
-            <span class="card-especialidad">{{ p.profesional.nombre }}</span>
-          </div>
+          <h3 class="card-nombre">
+            {{ p.nombre || '' }} {{ p.apellido || '' }}
+            <button type="button" class="btn-info-inline" @click.stop="abrirDetalles(p)" title="Ver detalle">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="info-svg">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+            </button>
+          </h3>
         </div>
 
         <div class="card-estado">
@@ -176,6 +173,53 @@ const eliminar = async (id) => {
 
     <!-- Modal agregar / editar -->
     <PacienteForm v-if="modalAbierto" :paciente="pacienteEditando" @guardar="guardar" @cerrar="cerrarModal" />
+
+    <!-- Modal de Detalles -->
+    <div v-if="modalDetallesAbierto && pacienteDetalle" class="modal-backdrop" @click.self="cerrarDetalles">
+      <div class="modal detalle-modal">
+        <div class="modal-header">
+          <h2>Detalles del Paciente</h2>
+          <button class="btn-cerrar" @click="cerrarDetalles">✕</button>
+        </div>
+        <div class="modal-body detalle-body">
+          <div class="detalle-campo">
+            <label>Nombre Completo</label>
+            <p>{{ pacienteDetalle.nombre }} {{ pacienteDetalle.apellido }}</p>
+          </div>
+          <div class="detalle-campo">
+            <label>Email</label>
+            <p>{{ pacienteDetalle.email || 'No registrado' }}</p>
+          </div>
+          <div class="detalle-campo">
+            <label>Teléfono</label>
+            <p>{{ pacienteDetalle.telefono || 'No registrado' }}</p>
+          </div>
+          <div class="detalle-campo">
+            <label>Fecha de nacimiento</label>
+            <p>{{ pacienteDetalle.fecha_nacimiento || 'No registrada' }}</p>
+          </div>
+          <div class="detalle-campo full-width">
+            <label>Motivo de Consulta</label>
+            <p class="detalle-text">{{ pacienteDetalle.motivo_consulta || 'Sin motivo registrado' }}</p>
+          </div>
+          <div class="detalle-campo">
+            <label>Estado</label>
+            <p>
+              <span :class="['badge-estado', pacienteDetalle.estado]">
+                {{ pacienteDetalle.estado.charAt(0).toUpperCase() + pacienteDetalle.estado.slice(1) }}
+              </span>
+            </p>
+          </div>
+          <div class="detalle-campo full-width">
+            <label>Notas Particulares</label>
+            <p class="detalle-text">{{ pacienteDetalle.notas || 'Sin notas particulares' }}</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancelar" @click="cerrarDetalles">Cerrar</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -208,10 +252,6 @@ const eliminar = async (id) => {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
-}
-
-.btn-agregar:hover {
-  background: #6e1832;
 }
 
 .btn-agregar:hover {
@@ -266,7 +306,6 @@ const eliminar = async (id) => {
 }
 
 /* Grid */
-/* Lista Horizontal */
 .lista-pacientes {
   display: flex;
   flex-direction: column;
@@ -280,7 +319,7 @@ const eliminar = async (id) => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   padding: 1rem 1.5rem;
   display: flex;
-  align-items: center; /* Alinea todo al medio verticalmente */
+  align-items: center;
   gap: 1.5rem;
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -291,7 +330,7 @@ const eliminar = async (id) => {
 }
 
 .card-avatar {
-  width: 45px; /* Un poco más chico para la lista */
+  width: 45px;
   height: 45px;
   border-radius: 50%;
   background: linear-gradient(135deg, #8b1e3f, #c0496a);
@@ -304,7 +343,6 @@ const eliminar = async (id) => {
   flex-shrink: 0;
 }
 
-/* El cuerpo toma el espacio disponible */
 .card-body {
   flex: 1;
   display: flex;
@@ -316,17 +354,31 @@ const eliminar = async (id) => {
   font-size: 1.1rem;
   font-weight: 700;
   color: #1a1a2e;
-  margin: 0 0 0.25rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.card-especialidad {
-  display: inline-block;
-  background: #fdf0f3;
+.btn-info-inline {
+  background: none;
+  border: none;
   color: #8b1e3f;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.2rem 0.6rem;
-  border-radius: 20px;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.btn-info-inline:hover {
+  color: #c0496a;
+  transform: scale(1.15);
+}
+
+.info-svg {
+  stroke: currentColor;
 }
 
 /* Estado del paciente */
@@ -342,7 +394,6 @@ const eliminar = async (id) => {
   border-radius: 20px;
 }
 
-/* Colores dinámicos para los estados */
 .badge-estado.activo { background: #e8f8f5; color: #1abc9c; }
 .badge-estado.inactivo { background: #fdecea; color: #e74c3c; }
 .badge-estado.alta { background: #e4d7eb; color: #7909b1; }
@@ -371,4 +422,148 @@ const eliminar = async (id) => {
 
 .btn-eliminar { background: #fdecea; color: #c0392b; }
 .btn-eliminar:hover { background: #f5b7b1; color: #a93226; }
+
+/* Modal styles (shared with PacienteForm but adapted for details) */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 900px;
+  margin: 1rem;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f0e6ea;
+}
+
+.modal-header h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.btn-cerrar {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #888;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-cerrar:hover {
+  background: #fdf0f3;
+  color: #8b1e3f;
+}
+
+.detalle-modal {
+  max-width: 600px;
+}
+
+.detalle-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  overflow-y: auto;
+  max-height: calc(90vh - 120px);
+}
+
+.detalle-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detalle-campo.full-width {
+  grid-column: 1 / -1;
+}
+
+.detalle-campo label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detalle-campo p {
+  font-size: 0.95rem;
+  color: #1a1a2e;
+  margin: 0;
+  font-weight: 500;
+}
+
+.detalle-text {
+  background: #fdfafb;
+  border: 1px solid #f0e6ea;
+  border-radius: 8px;
+  padding: 0.75rem;
+  white-space: pre-wrap;
+  min-height: 50px;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #f0e6ea;
+}
+
+.btn-cancelar {
+  background: #f0f0f0;
+  color: #555;
+  border: none;
+  padding: 0.55rem 1.1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-cancelar:hover {
+  background: #e0e0e0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #888;
+  font-size: 1rem;
+}
 </style>

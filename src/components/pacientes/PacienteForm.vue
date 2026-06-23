@@ -1,6 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, nextTick } from 'vue'
-import { getProfesionales } from '../../services/profesionalService'
+import { ref, watch, nextTick } from 'vue'
 import { getUsuario } from '../../services/authService'
 
 const esAdmin = ref(getUsuario()?.rol === 'administrador')
@@ -14,18 +13,14 @@ const props = defineProps({
 
 const emit = defineEmits(['guardar', 'cerrar'])
 
-const profesionales = ref([])
-
 const form = ref({
   nombre: '',
   apellido: '',
   email: '',
   telefono: '',
-  direccion: '',
   fecha_nacimiento: '',
   motivo_consulta: '',
   estado: 'activo',
-  profesional_id: null,
   notas: ''
 })
 
@@ -63,11 +58,9 @@ watch(
         apellido: '',
         email: '',
         telefono: '',
-        direccion: '',
         fecha_nacimiento: '',
         motivo_consulta: '',
         estado: 'activo',
-        profesional_id: '',
         notas: ''
       }
     }
@@ -76,25 +69,18 @@ watch(
 )
 
 const formValido = () => {
-  return form.value.nombre && form.value.apellido && form.value.email && form.value.telefono && form.value.direccion
+  return form.value.nombre && form.value.apellido && form.value.email && form.value.telefono
 }
-
-const cargarProfesionales = async () => {
-  try {
-    profesionales.value = await getProfesionales()
-  } catch (err) {
-    console.error('Error al cargar profesionales', err)
-    profesionales.value = []
-  }
-}
-
-onMounted(() => {
-  cargarProfesionales()
-})
 
 const guardar = () => {
   if (!formValido()) {
-    alert('Todos los campos son obligatorios')
+    alert('Todos los campos marcados con * son obligatorios')
+    return
+  }
+  // Validación de email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(form.value.email)) {
+    alert('Por favor, ingrese un correo electrónico válido (ejemplo: usuario@dominio.com)')
     return
   }
   // Validación: la fecha de nacimiento no puede ser mayor a hoy
@@ -139,11 +125,6 @@ const guardar = () => {
         </div>
 
         <div class="campo">
-          <label>Dirección *</label>
-          <input v-model="form.direccion" type="text" :readonly="!esAdmin" placeholder="Dirección" required />
-        </div>
-
-        <div class="campo">
           <label>Fecha de nacimiento</label>
           <input v-model="form.fecha_nacimiento" type="date" :readonly="!esAdmin" :max="today" />
         </div>
@@ -157,18 +138,8 @@ const guardar = () => {
           <label>Estado</label>
           <select v-model="form.estado">
             <option value="activo">Activo</option>
-            <option value="derivado">Derivado</option>
+            <option value="inactivo">Inactivo</option>
             <option value="alta">Alta</option>
-          </select>
-        </div>
-        
-        <div class="campo" v-if="esAdmin">
-          <label>Profesional asignado</label>
-          <select v-model="form.profesional_id">
-            <option :value="null">Sin asignar</option>
-            <option v-for="prof in profesionales" :key="prof.id" :value="prof.id">
-              {{ prof.nombre }} {{ prof.apellido }}
-            </option>
           </select>
         </div>
 
