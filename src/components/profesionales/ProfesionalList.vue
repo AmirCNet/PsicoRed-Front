@@ -2,7 +2,10 @@
 import { ref, onMounted } from 'vue'
 import { getProfesionales, updateProfesional, deleteProfesional } from '../../services/profesionalService'
 import { getUsuario } from '../../services/authService'
+import { useToast } from '../../composables/useToast'
 import ProfesionalForm from './ProfesionalForm.vue'
+
+const { success, error: toastError } = useToast()
 
 const profesionales = ref([])
 const cargando = ref(true)
@@ -14,7 +17,7 @@ onMounted(async () => {
     profesionales.value = await getProfesionales()
   } catch (err) {
     console.error('Error al obtener profesionales', err)
-    alert(err.message || 'Error al obtener profesionales')
+    toastError(err.message || 'Error al obtener profesionales')
   } finally {
     cargando.value = false
   }
@@ -39,9 +42,10 @@ const guardar = async (datos) => {
     await updateProfesional(profesionalEditando.value.id, datos)
     profesionales.value = await getProfesionales()
     cerrarModal()
+    success('Profesional actualizado correctamente')
   } catch (err) {
     console.error('Error al guardar profesional', err)
-    alert(err.message || 'Error al guardar profesional')
+    toastError(err.message || 'Error al guardar profesional')
   }
 }
 
@@ -50,9 +54,10 @@ const eliminar = async (id) => {
   try {
     await deleteProfesional(id)
     profesionales.value = await getProfesionales()
+    success('Profesional eliminado')
   } catch (err) {
     console.error('Error al eliminar profesional', err)
-    alert(err.message || 'Error al eliminar profesional')
+    toastError(err.message || 'Error al eliminar profesional')
   }
 }
 

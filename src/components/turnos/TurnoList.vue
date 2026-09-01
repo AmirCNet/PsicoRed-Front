@@ -2,7 +2,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { getTurnos, createTurno, updateTurno, cancelarTurno } from '../../services/turnosService'
 import { getUsuario } from '../../services/authService'
+import { useToast } from '../../composables/useToast'
 import TurnoForm from './TurnoForm.vue'
+
+const { success, error: toastError } = useToast()
 
 const turnos = ref([])
 const cargando = ref(true)
@@ -76,9 +79,10 @@ const guardar = async (datos) => {
     }
     await cargarTurnos()
     cerrarModal()
+    success(turnoEditando.value ? 'Turno actualizado' : 'Turno programado')
   } catch (err) {
     console.error('Error al guardar turno:', err)
-    alert(err.message || 'Error al guardar turno')
+    toastError(err.message || 'Error al guardar turno')
   }
 }
 
@@ -87,9 +91,10 @@ const cancelar = async (id) => {
   try {
     await cancelarTurno(id)
     await cargarTurnos()
+    success('Turno cancelado')
   } catch (err) {
     console.error('Error al cancelar turno:', err)
-    alert(err.message || 'Error al cancelar turno')
+    toastError(err.message || 'Error al cancelar turno')
   }
 }
 

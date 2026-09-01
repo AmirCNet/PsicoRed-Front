@@ -1,4 +1,4 @@
-const API = 'http://localhost:3000/api'
+const API = `${import.meta.env.VITE_API_URL}/api`
 
 /*
 Intenta hacer login. Si tiene éxito, guarda el token y los datos del usuario
