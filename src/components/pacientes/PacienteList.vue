@@ -2,7 +2,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { getPacientes, createPaciente, updatePaciente, deletePaciente } from '../../services/pacientesService'
 import { getUsuario } from '../../services/authService'
+import { useToast } from '../../composables/useToast'
 import PacienteForm from './PacienteForm.vue'
+
+const { success, error: toastError } = useToast()
 
 const pacientes = ref([])
 const esAdmin = ref(getUsuario()?.rol === 'administrador')
@@ -17,7 +20,7 @@ onMounted(async () => {
     pacientes.value = await getPacientes()
   } catch (err) {
     console.error('Error al obtener pacientes', err)
-    alert(err.message || 'Error al obtener pacientes')
+    toastError(err.message || 'Error al obtener pacientes')
   }
 })
 
@@ -85,9 +88,10 @@ const guardar = async (datos) => {
     }
     pacientes.value = await getPacientes()
     cerrarModal()
+    success(pacienteEditando.value ? 'Paciente actualizado' : 'Paciente creado')
   } catch (err) {
     console.error('Error al guardar paciente', err)
-    alert(err.message || 'Error al guardar paciente')
+    toastError(err.message || 'Error al guardar paciente')
   } finally {
     cargando.value = false
   }
@@ -99,9 +103,10 @@ const eliminar = async (id) => {
     cargando.value = true
     await deletePaciente(id)
     pacientes.value = await getPacientes()
+    success('Paciente eliminado')
   } catch (err) {
     console.error('Error al eliminar paciente', err)
-    alert(err.message || 'Error al eliminar paciente')
+    toastError(err.message || 'Error al eliminar paciente')
   } finally {
     cargando.value = false
   }

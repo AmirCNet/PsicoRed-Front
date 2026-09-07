@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="auth-container">
     <div class="auth-box">
       <slot />

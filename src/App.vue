@@ -2,6 +2,7 @@
 import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from './stores/authStore'
+import ToastContainer from './components/ToastContainer.vue'
 
 const route     = useRoute()
 const router    = useRouter()
@@ -12,7 +13,7 @@ onMounted(async () => {
   if (!authStore.isAuthenticated) return
 
   try {
-    const res = await fetch('http://localhost:3000/api/auth/me', {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
       headers: { 'Authorization': `Bearer ${authStore.token}` }
     })
     if (!res.ok) throw new Error('Token inválido')
@@ -140,6 +141,9 @@ const cerrarSesion = () => {
     <main class="main-content">
       <router-view />
     </main>
+
+    <!-- Toasts globales -->
+    <ToastContainer />
 
   </div>
 </template>

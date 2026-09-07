@@ -6,7 +6,10 @@ import {
   updateDerivacion,
   deleteDerivacion
 } from '../../services/derivacionesService'
+import { useToast } from '../../composables/useToast'
 import DerivacionForm from './DerivacionForm.vue'
+
+const { success, error: toastError } = useToast()
 
 const derivaciones = ref([])
 const filtroEstado = ref('todos')
@@ -17,7 +20,7 @@ onMounted(async () => {
     derivaciones.value = await getDerivaciones()
   } catch (err) {
     console.error('Error al obtener derivaciones', err)
-    alert(err.message || 'Error al obtener derivaciones')
+    toastError(err.message || 'Error al obtener derivaciones')
   }
 })
 
@@ -61,16 +64,17 @@ const guardar = async (datos) => {
         ['pendiente', 'aceptada'].includes(d.estado)
       )
       if (existeDuplicada) {
-        alert('Este paciente ya tiene una derivación pendiente o activa con el mismo profesional.')
+        toastError('Este paciente ya tiene una derivación pendiente o activa con el mismo profesional.')
         return
       }
       await createDerivacion(datos)
     }
     derivaciones.value = await getDerivaciones()
     cerrarModal()
+    success(derivacionEditando.value ? 'Derivación actualizada' : 'Derivación creada')
   } catch (err) {
     console.error('Error al guardar derivación', err)
-    alert(err.message || 'Error al guardar derivación')
+    toastError(err.message || 'Error al guardar derivación')
   } finally {
     cargando.value = false
   }
@@ -82,9 +86,10 @@ const eliminar = async (id) => {
     cargando.value = true
     await deleteDerivacion(id)
     derivaciones.value = await getDerivaciones()
+    success('Derivación eliminada')
   } catch (err) {
     console.error('Error al eliminar derivación', err)
-    alert(err.message || 'Error al eliminar derivación')
+    toastError(err.message || 'Error al eliminar derivación')
   } finally {
     cargando.value = false
   }
