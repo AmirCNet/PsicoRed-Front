@@ -4,6 +4,7 @@ import { getProfesionales, updateProfesional, deleteProfesional } from '../../se
 import { getUsuario } from '../../services/authService'
 import { useToast } from '../../composables/useToast'
 import ProfesionalForm from './ProfesionalForm.vue'
+import AppAvatar from '../common/AppAvatar.vue'
 
 const { success, error: toastError } = useToast()
 
@@ -98,7 +99,12 @@ const formatHonorarios = (valor) => {
       <div v-for="p in profesionales" :key="p.id" class="card">
 
         <div class="card-top">
-          <div class="card-avatar">{{ inicialProfesional(p) }}</div>
+          <AppAvatar 
+            :userId="p.usuario?.id || p.usuario_id || p.id" 
+            :seed="p.usuario?.email || p.email || `${p.nombre} ${p.apellido}-${p.id}`" 
+            :size="46" 
+            background="squircle" 
+          />
           <div v-if="formatHonorarios(p.honorarios)" class="card-honorarios">
             {{ formatHonorarios(p.honorarios) }}
             <span class="honorarios-label">/sesión</span>

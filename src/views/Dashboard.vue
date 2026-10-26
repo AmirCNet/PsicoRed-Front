@@ -4,7 +4,12 @@
     <!-- Header -->
     <div class="dash-header">
       <div class="dash-welcome">
-        <div class="avatar">{{ iniciales }}</div>
+        <AppAvatar 
+          :userId="authStore.usuario?.id"
+          :seed="authStore.usuario?.id ? String(authStore.usuario.id) : (authStore.usuario?.email || '')"
+          :size="52"
+          background="squircle"
+        />
         <div>
           <h1>¡Bienvenido/a, {{ nombreUsuario }}!</h1>
           <p class="email">{{ authStore.usuario?.email }}</p>
@@ -129,7 +134,7 @@
       <ul v-else class="pendientes-list">
         <li v-for="u in pendientes" :key="u.id" class="pendiente-item">
           <div class="pendiente-info">
-            <div class="pendiente-avatar">{{ u.email.slice(0, 2).toUpperCase() }}</div>
+            <AppAvatar :userId="u.id" :seed="u.email" :size="38" background="squircle" />
             <div>
               <p class="pendiente-email">{{ u.email }}</p>
               <p class="pendiente-fecha">Registrado {{ formatFecha(u.creado_en) }}</p>
@@ -146,6 +151,7 @@
         </li>
       </ul>
     </div>
+
   </div>
 </template>
 
@@ -157,6 +163,7 @@ import { getPendientes, aprobarUsuario } from '../services/usuariosService'
 import { getProfesionales } from '../services/profesionalService'
 import { getPacientes } from '../services/pacientesService'
 import { getTurnos } from '../services/turnosService'
+import AppAvatar from '../components/common/AppAvatar.vue'
 
 const authStore = useAuthStore()
 const { success, error: toastError } = useToast()
