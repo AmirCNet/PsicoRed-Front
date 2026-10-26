@@ -7,6 +7,7 @@ import Derivaciones from '../views/Derivaciones.vue'
 import Turnos from '../views/Turnos.vue'
 import Pendiente from '../views/Pendiente.vue'
 import CompletarPerfil from '../views/CompletarPerfil.vue'
+import Perfil from '../views/Perfil.vue'
 import NotFound from '../views/NotFound.vue'
 import { isAuthenticated, getUsuario } from '../services/authService'
 
@@ -55,6 +56,11 @@ const routes = [
   {
     path: '/turnos',
     component: Turnos,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/perfil',
+    component: Perfil,
     meta: { requiresAuth: true }
   },
   {

@@ -5,7 +5,7 @@
       <!--PANEL LOGIN-->
       <div class="auth-panel">
       <div class="login-header">
-        <h1 class="login-title">PsicoRed</h1>
+        <h1 class="login-title">Psicomunidad</h1>
         <p class="login-subtitle">Iniciá sesión para continuar</p>
       </div>
 
@@ -236,21 +236,32 @@ const handleRegister = async () => {
   overflow: hidden;
 }
 
-/* ── Track: Ambos paneles lado a lado */
+/* ── Track: Ambos paneles lado a lado con separación holgada */
 .slides-track {
   display: flex;
-  width: 200%;
-  transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  gap: 3.5rem;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .slides-track.slide-left {
-  transform: translateX(-50%);
+  transform: translateX(calc(-100% - 3.5rem));
 }
 
-/* ── Cada panel ocupa la mitad del track = 100% del card */
+/* ── Cada panel ocupa el 100% del contenedor visible */
 .auth-panel {
-  width: 50%;
+  width: 100%;
   flex-shrink: 0;
+  opacity: 0.35;
+  filter: blur(0.5px);
+  transition: opacity 0.35s ease, filter 0.35s ease;
+}
+
+/* Panel activo nítido */
+.slides-track:not(.slide-left) .auth-panel:first-child,
+.slides-track.slide-left .auth-panel:last-child {
+  opacity: 1;
+  filter: blur(0);
 }
 
 /* ── Tipografía y header */
@@ -260,10 +271,11 @@ const handleRegister = async () => {
 }
 
 .login-title {
-  font-size: 1.8rem;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--wine);
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
 }
 
 .login-subtitle {

@@ -5,6 +5,8 @@ import {
   SHAPE_OPTIONS, 
   EXPRESSION_OPTIONS, 
   HUE_PRESETS,
+  TONE_OPTIONS,
+  palette,
   getStoredAvatar,
   saveStoredAvatar,
   removeStoredAvatar,
@@ -36,6 +38,7 @@ const selectedShape = ref('round')
 const selectedExpression = ref('idle')
 const customHueEnabled = ref(false)
 const selectedHue = ref(350) // Por defecto tono vino PsicoRed
+const selectedTone = ref(0.70) // Tono saturado por defecto
 const activeTab = ref('expression') // 'expression' | 'shape' | 'hue'
 
 // Cargar estado inicial
@@ -47,15 +50,18 @@ const loadCurrentSettings = () => {
     if (stored.hue !== null && stored.hue !== undefined) {
       customHueEnabled.value = true
       selectedHue.value = Number(stored.hue)
+      selectedTone.value = stored.tone !== null && stored.tone !== undefined ? Number(stored.tone) : 0.70
     } else {
       customHueEnabled.value = false
       selectedHue.value = 350
+      selectedTone.value = 0.70
     }
   } else {
     selectedShape.value = 'round'
     selectedExpression.value = 'idle'
     customHueEnabled.value = false
     selectedHue.value = 350
+    selectedTone.value = 0.70
   }
 }
 
@@ -78,6 +84,16 @@ const previewTraits = computed(() => {
   return shapeVal !== null ? { shape: shapeVal } : undefined
 })
 const previewHue = computed(() => customHueEnabled.value ? Number(selectedHue.value) : undefined)
+const previewTone = computed(() => customHueEnabled.value ? Number(selectedTone.value) : undefined)
+
+const previewHeadColor = computed(() => {
+  if (!customHueEnabled.value) return ''
+  try {
+    return palette(Number(selectedHue.value), true, Number(selectedTone.value)).head
+  } catch {
+    return `hsl(${selectedHue.value}, 60%, 40%)`
+  }
+})
 
 const selectHuePreset = (h) => {
   customHueEnabled.value = true
@@ -92,7 +108,8 @@ const handleSave = () => {
   const config = {
     shape: selectedShape.value,
     expression: selectedExpression.value,
-    hue: customHueEnabled.value ? Number(selectedHue.value) : null
+    hue: customHueEnabled.value ? Number(selectedHue.value) : null,
+    tone: customHueEnabled.value ? Number(selectedTone.value) : null
   }
   saveStoredAvatar(props.userId, config)
   success('¡Tu avatar ha sido actualizado!')
@@ -131,23 +148,23 @@ const handleReset = () => {
             :expression="previewExpression"
             :traits="previewTraits"
             :hue="previewHue"
+            :tone="previewTone"
             background="squircle"
             animate="always"
           />
         </div>
         <div class="preview-info">
           <span class="preview-tag expression-tag">
-            {{ EXPRESSION_OPTIONS.find(e => e.id === selectedExpression)?.emoji }} 
-            {{ EXPRESSION_OPTIONS.find(e => e.id === selectedExpression)?.label }}
+            Expresión: {{ EXPRESSION_OPTIONS.find(e => e.id === selectedExpression)?.label }}
           </span>
           <span class="preview-tag shape-tag">
             Forma: {{ SHAPE_OPTIONS.find(s => s.id === selectedShape)?.label }}
           </span>
-          <span v-if="customHueEnabled" class="preview-tag hue-tag" :style="{ backgroundColor: `hsl(${selectedHue}, 60%, 40%)` }">
-            Tono: {{ selectedHue }}°
+          <span v-if="customHueEnabled" class="preview-tag hue-tag" :style="{ backgroundColor: previewHeadColor }">
+            Color: {{ selectedHue }}° ({{ TONE_OPTIONS.find(t => t.value === selectedTone)?.label || 'Intenso' }})
           </span>
           <span v-else class="preview-tag hue-tag-auto">
-            Tono: Automático
+            Color: Automático (Seed)
           </span>
         </div>
       </div>
@@ -160,7 +177,10 @@ const handleReset = () => {
           :class="{ active: activeTab === 'expression' }"
           @click="activeTab = 'expression'"
         >
-          <span class="tab-icon">😊</span> Expresión
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
+          </svg>
+          Expresión
         </button>
         <button 
           type="button" 
@@ -168,7 +188,10 @@ const handleReset = () => {
           :class="{ active: activeTab === 'shape' }"
           @click="activeTab = 'shape'"
         >
-          <span class="tab-icon">✨</span> Forma
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>
+          </svg>
+          Forma
         </button>
         <button 
           type="button" 
@@ -176,7 +199,10 @@ const handleReset = () => {
           :class="{ active: activeTab === 'hue' }"
           @click="activeTab = 'hue'"
         >
-          <span class="tab-icon">🎨</span> Tono de Color
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+          </svg>
+          Tono de Color
         </button>
       </div>
 
@@ -194,7 +220,7 @@ const handleReset = () => {
               :class="{ selected: selectedExpression === expr.id }"
               @click="selectedExpression = expr.id"
             >
-              <span class="expr-emoji">{{ expr.emoji }}</span>
+              <span class="shape-bullet"></span>
               <div class="expr-text">
                 <span class="expr-title">{{ expr.label }}</span>
                 <span class="expr-desc">{{ expr.desc }}</span>
@@ -259,6 +285,24 @@ const handleReset = () => {
                 />
               </div>
 
+              <!-- Selector de Intensidad / Saturación (Tone) -->
+              <div class="tones-section">
+                <span class="tones-title">Intensidad / Saturación:</span>
+                <div class="tones-grid">
+                  <button
+                    v-for="t in TONE_OPTIONS"
+                    :key="t.id"
+                    type="button"
+                    class="tone-btn"
+                    :class="{ active: selectedTone === t.value }"
+                    @click="selectedTone = t.value"
+                  >
+                    <span class="tone-label">{{ t.label }}</span>
+                    <span class="tone-desc">{{ t.desc }}</span>
+                  </button>
+                </div>
+              </div>
+
               <!-- Paleta de accesos directos -->
               <div class="presets-section">
                 <span class="presets-title">Colores predefinidos:</span>
@@ -280,7 +324,7 @@ const handleReset = () => {
             </div>
             
             <div v-else class="hue-auto-info">
-              <p>🎨 El color de tu avatar se genera de forma única y armónica a partir de tu identificador de usuario.</p>
+              <p>El color de tu avatar se genera de forma única y armónica a partir de tu identificador de usuario.</p>
             </div>
           </div>
         </div>
@@ -633,20 +677,78 @@ const handleReset = () => {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 16px;
-  border-radius: 8px;
+  height: 18px;
+  border-radius: 9px;
   outline: none;
   background: linear-gradient(
     to right,
-    hsl(0, 80%, 50%),
-    hsl(60, 80%, 50%),
-    hsl(120, 80%, 50%),
-    hsl(180, 80%, 50%),
-    hsl(240, 80%, 50%),
-    hsl(300, 80%, 50%),
-    hsl(360, 80%, 50%)
+    #d65365 0%,
+    #d7703e 12%,
+    #c48f2b 25%,
+    #15a04c 42%,
+    #009f90 52%,
+    #0096af 60%,
+    #607de8 75%,
+    #af5fa9 88%,
+    #cc5594 97%,
+    #d65365 100%
   );
   cursor: pointer;
+}
+
+/* Selector de tonos / intensidad */
+.tones-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tones-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+.tones-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.tone-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.5rem 0.65rem;
+  background: #faf7f2;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.tone-btn:hover {
+  border-color: var(--wine-light);
+  transform: translateY(-1px);
+}
+
+.tone-btn.active {
+  border-color: var(--wine);
+  background: #fff5f5;
+  box-shadow: 0 0 0 1px var(--wine);
+}
+
+.tone-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tone-desc {
+  font-size: 0.7rem;
+  color: var(--text-soft);
+  margin-top: 0.15rem;
 }
 
 .hue-range-slider::-webkit-slider-thumb {

@@ -1,4 +1,5 @@
 import * as expressions from 'blobatar/expression'
+export { palette } from 'blobatar'
 
 export const SHAPE_OPTIONS = [
   { id: 'round', label: 'Redondo', value: 0.10, desc: 'Silueta circular suave' },
@@ -14,31 +15,37 @@ export const SHAPE_OPTIONS = [
 ]
 
 export const EXPRESSION_OPTIONS = [
-  { id: 'idle', label: 'Neutral', emoji: '😐', desc: 'Mirada en reposo' },
-  { id: 'happy', label: 'Feliz', emoji: '😄', desc: 'Ojos achinados sonrientes' },
-  { id: 'wink', label: 'Guiño', emoji: '😉', desc: 'Un ojo cerrado en complicidad' },
-  { id: 'smug', label: 'Confiado', emoji: '😏', desc: 'Inclinación sutil' },
-  { id: 'love', label: 'Afecto', emoji: '🥰', desc: 'Mirada cálida y cercana' },
-  { id: 'thinking', label: 'Pensativo', emoji: '🤔', desc: 'Atención oscilante' },
-  { id: 'surprised', label: 'Sorprendido', emoji: '😲', desc: 'Ojos bien abiertos' },
-  { id: 'sleepy', label: 'Somnoliento', emoji: '😴', desc: 'Ojos relajados' },
-  { id: 'shy', label: 'Tímido', emoji: '😊', desc: 'Ojos discretos con rubor' },
-  { id: 'unsure', label: 'Dudoso', emoji: '🤨', desc: 'Cejas asimétricas' },
-  { id: 'sad', label: 'Melancólico', emoji: '🥺', desc: 'Ojos caídos y distanciados' },
-  { id: 'mad', label: 'Enojado', emoji: '😤', desc: 'Mirada intensa en V' },
-  { id: 'scared', label: 'Alerta', emoji: '😨', desc: 'Ojos concentrados' },
-  { id: 'sick', label: 'Indispuesto', emoji: '🤢', desc: 'Ligera indisposición' }
+  { id: 'idle', label: 'Neutral', desc: 'Mirada en reposo' },
+  { id: 'happy', label: 'Feliz', desc: 'Ojos achinados sonrientes' },
+  { id: 'wink', label: 'Guiño', desc: 'Un ojo cerrado en complicidad' },
+  { id: 'smug', label: 'Confiado', desc: 'Inclinación sutil' },
+  { id: 'love', label: 'Afecto', desc: 'Mirada cálida y cercana' },
+  { id: 'thinking', label: 'Pensativo', desc: 'Atención oscilante' },
+  { id: 'surprised', label: 'Sorprendido', desc: 'Ojos bien abiertos' },
+  { id: 'sleepy', label: 'Somnoliento', desc: 'Ojos relajados' },
+  { id: 'shy', label: 'Tímido', desc: 'Ojos discretos con rubor' },
+  { id: 'unsure', label: 'Dudoso', desc: 'Cejas asimétricas' },
+  { id: 'sad', label: 'Melancólico', desc: 'Ojos caídos y distanciados' },
+  { id: 'mad', label: 'Enojado', desc: 'Mirada intensa en V' },
+  { id: 'scared', label: 'Alerta', desc: 'Ojos concentrados' },
+  { id: 'sick', label: 'Indispuesto', desc: 'Ligera indisposición' }
+]
+
+export const TONE_OPTIONS = [
+  { id: 'deep', label: 'Intenso', value: 0.70, desc: 'Color rico y con buen contraste' },
+  { id: 'bright', label: 'Luminoso', value: 0.85, desc: 'Color vivo y claro' },
+  { id: 'pastel', label: 'Suave / Pastel', value: 0.15, desc: 'Tono atenuado' }
 ]
 
 export const HUE_PRESETS = [
-  { hue: 350, label: 'Vino PsicoRed', color: '#882233' },
-  { hue: 15, label: 'Coral', color: '#e0533c' },
-  { hue: 45, label: 'Ámbar', color: '#d98b16' },
-  { hue: 150, label: 'Esmeralda', color: '#169b62' },
-  { hue: 185, label: 'Turquesa', color: '#12a4a9' },
-  { hue: 215, label: 'Azul', color: '#2770d4' },
-  { hue: 270, label: 'Púrpura', color: '#7b3bd4' },
-  { hue: 320, label: 'Rosa', color: '#c93b95' }
+  { hue: 350, label: 'Vino PsicoRed', color: '#cc5594' },
+  { hue: 15, label: 'Coral', color: '#d65365' },
+  { hue: 45, label: 'Ámbar', color: '#d7703e' },
+  { hue: 150, label: 'Esmeralda', color: '#15a04c' },
+  { hue: 185, label: 'Turquesa', color: '#009f90' },
+  { hue: 215, label: 'Azul', color: '#0096af' },
+  { hue: 270, label: 'Púrpura', color: '#607de8' },
+  { hue: 320, label: 'Rosa', color: '#af5fa9' }
 ]
 
 const STORAGE_PREFIX = 'psicored_avatar_'

@@ -4,31 +4,16 @@
     <!-- Header -->
     <div class="dash-header">
       <div class="dash-welcome">
-        <div class="dash-avatar-wrapper" @click="isAvatarModalOpen = true" title="Personalizar mi avatar">
-          <AppAvatar 
-            :userId="authStore.usuario?.id"
-            :seed="authStore.usuario?.id ? String(authStore.usuario.id) : (authStore.usuario?.email || '')"
-            :size="52"
-            background="squircle"
-          />
-          <span class="dash-avatar-badge" title="Editar avatar">
-            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-            </svg>
-          </span>
-        </div>
+        <AppAvatar 
+          :userId="authStore.usuario?.id"
+          :seed="authStore.usuario?.id ? String(authStore.usuario.id) : (authStore.usuario?.email || '')"
+          :size="52"
+          background="squircle"
+        />
         <div>
           <h1>¡Bienvenido/a, {{ nombreUsuario }}!</h1>
           <p class="email">{{ authStore.usuario?.email }}</p>
         </div>
-        <button 
-          type="button" 
-          class="btn-personalizar-avatar" 
-          @click="isAvatarModalOpen = true"
-          title="Abrir editor de avatar"
-        >
-          <span class="btn-avatar-icon">🎨</span> Personalizar avatar
-        </button>
         <span class="badge" :class="authStore.esAdmin ? 'badge-admin' : 'badge-pro'">
           {{ authStore.esAdmin ? 'Administrador' : 'Profesional' }}
         </span>
@@ -167,15 +152,6 @@
       </ul>
     </div>
 
-    <!-- Modal para personalizar avatar -->
-    <AvatarCustomizerModal
-      v-if="authStore.usuario"
-      :isOpen="isAvatarModalOpen"
-      :userId="authStore.usuario.id"
-      :userSeed="String(authStore.usuario.id || authStore.usuario.email || '')"
-      @close="isAvatarModalOpen = false"
-    />
-
   </div>
 </template>
 
@@ -188,11 +164,9 @@ import { getProfesionales } from '../services/profesionalService'
 import { getPacientes } from '../services/pacientesService'
 import { getTurnos } from '../services/turnosService'
 import AppAvatar from '../components/common/AppAvatar.vue'
-import AvatarCustomizerModal from '../components/common/AvatarCustomizerModal.vue'
 
 const authStore = useAuthStore()
 const { success, error: toastError } = useToast()
-const isAvatarModalOpen = ref(false)
 
 const iniciales = computed(() => {
   const email = authStore.usuario?.email ?? ''
@@ -416,69 +390,6 @@ onMounted(() => {
 }
 
 /* Avatar (reutilizado en header) */
-.dash-avatar-wrapper {
-  position: relative;
-  cursor: pointer;
-  flex-shrink: 0;
-  border-radius: 14px;
-  transition: transform 0.2s ease, filter 0.2s ease;
-}
-
-.dash-avatar-wrapper:hover {
-  transform: scale(1.05);
-  filter: drop-shadow(0 4px 8px rgba(77, 14, 11, 0.15));
-}
-
-.dash-avatar-badge {
-  position: absolute;
-  bottom: -4px;
-  right: -4px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--wine);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--white);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-  cursor: pointer;
-  transition: transform 0.15s ease, background 0.15s ease;
-}
-
-.dash-avatar-wrapper:hover .dash-avatar-badge {
-  transform: scale(1.15);
-  background: var(--wine-light);
-}
-
-.btn-personalizar-avatar {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.75rem;
-  background: var(--white);
-  border: 1.5px solid var(--border);
-  border-radius: 20px;
-  color: var(--wine);
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: all 0.18s ease;
-  margin-left: 0.5rem;
-}
-
-.btn-personalizar-avatar:hover {
-  background: var(--rose-light);
-  border-color: var(--rose);
-  transform: translateY(-1px);
-}
-
-.btn-avatar-icon {
-  font-size: 0.95rem;
-}
-
 .avatar {
   width: 48px;
   height: 48px;

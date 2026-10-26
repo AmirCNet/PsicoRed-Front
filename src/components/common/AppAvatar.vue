@@ -33,6 +33,10 @@ const props = defineProps({
     type: Number,
     default: null
   },
+  tone: {
+    type: Number,
+    default: null
+  },
   background: {
     type: [String, Boolean],
     default: 'squircle'
@@ -83,10 +87,25 @@ const effectiveExpression = computed(() => {
 })
 
 // Resolver tono/hue activo (prop explícita > config de usuario > hash de blobatar)
+// Resolver tono/hue activo (prop explícita > config de usuario > hash de blobatar)
 const effectiveHue = computed(() => {
   if (props.hue !== null && props.hue !== undefined) return props.hue
   if (customConfig.value?.hue !== null && customConfig.value?.hue !== undefined) {
     return customConfig.value.hue
+  }
+  return undefined
+})
+
+// Resolver saturación/tone activo
+// Si hay un hue personalizado, aseguramos un tone saturado (0.70 por defecto)
+// para evitar que caiga en los tonos casi monocromáticos/grises del seed
+const effectiveTone = computed(() => {
+  if (props.tone !== null && props.tone !== undefined) return props.tone
+  if (customConfig.value?.tone !== null && customConfig.value?.tone !== undefined) {
+    return customConfig.value.tone
+  }
+  if (effectiveHue.value !== undefined) {
+    return 0.70
   }
   return undefined
 })
@@ -109,6 +128,7 @@ const effectiveTraits = computed(() => {
       :size="size"
       :expression="effectiveExpression"
       :hue="effectiveHue"
+      :tone="effectiveTone"
       :traits="effectiveTraits"
       :background="background"
       :animate="animate"
