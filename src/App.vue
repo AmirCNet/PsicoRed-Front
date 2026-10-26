@@ -1,12 +1,15 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from './stores/authStore'
 import ToastContainer from './components/ToastContainer.vue'
+import AppAvatar from './components/common/AppAvatar.vue'
+import AvatarCustomizerModal from './components/common/AvatarCustomizerModal.vue'
 
 const route     = useRoute()
 const router    = useRouter()
 const authStore = useAuthStore()
+const isAvatarModalOpen = ref(false)
 
 // Al iniciar, si hay un token guardado, validar que siga siendo válido
 onMounted(async () => {
@@ -118,12 +121,22 @@ const cerrarSesion = () => {
 
       <!-- Footer: usuario + logout -->
       <div class="sidebar-footer">
-        <div class="user-info">
-          <div class="user-avatar">{{ iniciales }}</div>
+        <div class="user-info user-info--clickable" @click="isAvatarModalOpen = true" title="Personalizar mi avatar">
+          <AppAvatar 
+            :userId="authStore.usuario?.id" 
+            :seed="authStore.usuario?.id ? String(authStore.usuario.id) : (authStore.usuario?.email || '')" 
+            :size="36" 
+            background="squircle"
+          />
           <div class="user-details">
             <p class="user-email">{{ authStore.usuario?.email }}</p>
             <span class="user-rol">{{ authStore.esAdmin ? 'Administrador' : 'Profesional' }}</span>
           </div>
+          <button class="btn-avatar-edit" type="button" @click.stop="isAvatarModalOpen = true" title="Personalizar avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+          </button>
         </div>
         <button class="btn-logout" @click="cerrarSesion" title="Cerrar sesión">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
@@ -141,6 +154,15 @@ const cerrarSesion = () => {
     <main class="main-content">
       <router-view />
     </main>
+
+    <!-- Modal de personalización de Avatar -->
+    <AvatarCustomizerModal
+      v-if="authStore.usuario"
+      :isOpen="isAvatarModalOpen"
+      :userId="authStore.usuario.id"
+      :userSeed="String(authStore.usuario.id || authStore.usuario.email || '')"
+      @close="isAvatarModalOpen = false"
+    />
 
     <!-- Toasts globales -->
     <ToastContainer />
@@ -266,6 +288,38 @@ const cerrarSesion = () => {
   gap: 0.65rem;
   flex: 1;
   min-width: 0;
+}
+
+.user-info--clickable {
+  cursor: pointer;
+  padding: 0.25rem 0.35rem;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.user-info--clickable:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-avatar-edit {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.btn-avatar-edit:hover,
+.user-info--clickable:hover .btn-avatar-edit {
+  color: white;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .user-avatar {

@@ -8,6 +8,7 @@ import {
 } from '../../services/derivacionesService'
 import { useToast } from '../../composables/useToast'
 import DerivacionForm from './DerivacionForm.vue'
+import AppAvatar from '../common/AppAvatar.vue'
 
 const { success, error: toastError } = useToast()
 
@@ -157,7 +158,7 @@ const estadoLabel = (estado) => {
       <div v-for="d in derivacionesFiltradas" :key="d.id" class="derivacion-item" :class="d.estado">
         
         <div class="derivacion-paciente">
-          <div class="card-avatar">{{ inicialPaciente(d) }}</div>
+          <AppAvatar :userId="d.paciente_id || d.id" :seed="`${nombrePaciente(d)}-${d.paciente_id || d.id}`" :size="40" background="squircle" />
           <div class="nombre-box">
             <span class="label-seccion">Paciente</span>
             <strong class="paciente-nombre">{{ nombrePaciente(d) }}</strong>

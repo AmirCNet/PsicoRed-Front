@@ -4,6 +4,7 @@ import { getPacientes, createPaciente, updatePaciente, deletePaciente } from '..
 import { getUsuario } from '../../services/authService'
 import { useToast } from '../../composables/useToast'
 import PacienteForm from './PacienteForm.vue'
+import AppAvatar from '../common/AppAvatar.vue'
 
 const { success, error: toastError } = useToast()
 
@@ -138,7 +139,7 @@ const eliminar = async (id) => {
     <div class="lista-pacientes">
       <div v-for="p in pacientesFiltrados" :key="p.id" class="list-item">
         
-        <div class="card-avatar">{{ p.nombre.charAt(0) }}</div>
+        <AppAvatar :userId="p.id" :seed="`${p.nombre} ${p.apellido}-${p.id}`" :size="42" background="squircle" />
         
         <div class="card-body">
           <h3 class="card-nombre">
