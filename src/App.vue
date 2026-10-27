@@ -17,8 +17,35 @@ const toggleSidebar = () => {
   localStorage.setItem('sidebar_collapsed', JSON.stringify(isSidebarCollapsed.value))
 }
 
+// ── Modo Oscuro / Claro ──────────────────────────────────────────────
+const getInitialTheme = () => {
+  const saved = localStorage.getItem('psicored_theme')
+  if (saved) return saved === 'dark'
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+}
+
+const isDarkMode = ref(getInitialTheme())
+
+const applyTheme = (dark) => {
+  if (dark) {
+    document.documentElement.classList.add('dark')
+    document.documentElement.setAttribute('data-theme', 'dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+    document.documentElement.setAttribute('data-theme', 'light')
+  }
+}
+
+const toggleDarkMode = () => {
+  isDarkMode.value = !isDarkMode.value
+  localStorage.setItem('psicored_theme', isDarkMode.value ? 'dark' : 'light')
+  applyTheme(isDarkMode.value)
+}
+
 // Al iniciar, si hay un token guardado, validar que siga siendo válido
 onMounted(async () => {
+  applyTheme(isDarkMode.value)
+
   if (!authStore.isAuthenticated) return
 
   try {
@@ -71,7 +98,7 @@ const cerrarSesion = () => {
         </svg>
       </button>
 
-      <!-- Encabezado de Sidebar: Marca Psicomunidad + Botón Retraer -->
+      <!-- Encabezado de Sidebar: Marca Psicomunidad + Acciones -->
       <div class="sidebar-header">
         <div class="sidebar-brand" :title="isSidebarCollapsed ? 'Psicomunidad' : ''" @click="isSidebarCollapsed && toggleSidebar()">
           <span v-if="!isSidebarCollapsed" class="brand-wordmark">Psicomunidad</span>
@@ -81,18 +108,44 @@ const cerrarSesion = () => {
           </div>
         </div>
 
-        <button 
-          v-if="!isSidebarCollapsed"
-          type="button" 
-          class="btn-toggle-sidebar" 
-          @click="toggleSidebar" 
-          title="Retraer barra lateral"
-          aria-label="Retraer barra lateral"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-        </button>
+        <div class="sidebar-header-actions" v-if="!isSidebarCollapsed">
+          <!-- Botón de Modo Oscuro / Claro en encabezado -->
+          <button 
+            type="button" 
+            class="btn-header-action btn-toggle-theme" 
+            @click="toggleDarkMode" 
+            :title="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+            :aria-label="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+          >
+            <svg v-if="isDarkMode" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+
+          <!-- Botón Retraer barra lateral -->
+          <button 
+            type="button" 
+            class="btn-header-action btn-toggle-sidebar" 
+            @click="toggleSidebar" 
+            title="Retraer barra lateral"
+            aria-label="Retraer barra lateral"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+        </div>
       </div>
 
       <!-- Nav links -->
@@ -198,6 +251,24 @@ const cerrarSesion = () => {
                 <span>Mi Perfil</span>
               </button>
 
+              <button type="button" class="flyout-btn flyout-btn--theme" @click="toggleDarkMode">
+                <svg v-if="isDarkMode" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <span>{{ isDarkMode ? 'Modo claro' : 'Modo oscuro' }}</span>
+              </button>
+
               <button type="button" class="flyout-btn flyout-btn--logout" @click="cerrarSesion">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -292,6 +363,40 @@ const cerrarSesion = () => {
   gap: 0.75rem;
   overflow: hidden;
   min-width: 0;
+}
+
+.sidebar-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btn-header-action {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.btn-header-action:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.btn-toggle-theme {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.btn-toggle-theme:hover {
+  color: #ffffff;
 }
 
 .btn-toggle-sidebar {
@@ -629,6 +734,15 @@ const cerrarSesion = () => {
 }
 
 .flyout-btn--profile:hover {
+  background: #f9f6f3;
+  color: var(--wine, #7d1c3a);
+}
+
+.flyout-btn--theme {
+  color: #374151;
+}
+
+.flyout-btn--theme:hover {
   background: #f9f6f3;
   color: var(--wine, #7d1c3a);
 }

@@ -8,12 +8,51 @@
   --text: #3b1a18;
   --text-soft: #7a5c5a;
   --white: #ffffff;
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
   --error: #b91c1c;
   --error-bg: #fee2e2;
   --border: #e0d0c8;
+  --border-subtle: rgba(77, 14, 11, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
   --text-shadow-subtle: 0 1px 2px rgba(73, 25, 130, 0.645);
   --text-shadow-brand: 0 2px 8px rgba(169, 111, 30, 0.25);
   --text-shadow-contrast: 0 1px 3px rgba(41, 8, 8, 0.4);
+  --sidebar-bg: var(--wine);
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  color-scheme: light;
+}
+
+/* ═══ MODO OSCURO (Dark Theme) ═══ */
+html.dark,
+:root.dark,
+[data-theme="dark"] {
+  --cream: #121215;
+  --cream-dark: #191920;
+  --wine: #e2848c;
+  --wine-light: #f09ea5;
+  --rose: #d88992;
+  --rose-light: #2c1619;
+  --text: #f3eff2;
+  --text-soft: #a89fa5;
+  --white: #1b1b22;
+  --card-bg: #1b1b22;
+  --input-bg: #16161c;
+  --error: #f87171;
+  --error-bg: #321517;
+  --border: #2e2a33;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.6);
+  --text-shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.8);
+  --text-shadow-brand: 0 2px 8px rgba(0, 0, 0, 0.6);
+  --text-shadow-contrast: 0 1px 3px rgba(0, 0, 0, 0.8);
+  --sidebar-bg: #150607;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  color-scheme: dark;
 }
 
 *,
@@ -25,10 +64,11 @@
 }
 
 body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
   background: var(--cream);
   color: var(--text);
   min-height: 100vh;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 #app {
@@ -44,4 +84,118 @@ body {
 ::-moz-selection {
   background-color: #dfa2a8;
   color: #3b1a18;
+}
+
+html.dark ::selection {
+  background-color: #5d252b;
+  color: #f3eff2;
+}
+
+html.dark ::-moz-selection {
+  background-color: #5d252b;
+  color: #f3eff2;
+}
+
+/* ── Ajustes globales para Modo Oscuro */
+html.dark .sidebar {
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+}
+
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark .section-title,
+html.dark .card-section-title {
+  color: var(--wine);
+}
+
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background: var(--input-bg);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+html.dark input:focus,
+html.dark textarea:focus,
+html.dark select:focus {
+  border-color: var(--rose);
+}
+
+html.dark .user-flyout-card {
+  background: var(--white);
+  border-color: var(--border);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+html.dark .user-flyout-card::before {
+  background: var(--white);
+  border-left-color: var(--border);
+  border-bottom-color: var(--border);
+}
+
+html.dark .flyout-email {
+  color: var(--text);
+}
+
+html.dark .flyout-divider {
+  background: var(--border);
+}
+
+html.dark .flyout-btn--profile {
+  color: var(--text);
+}
+
+html.dark .flyout-btn--profile:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--rose);
+}
+
+html.dark .flyout-btn--theme {
+  color: var(--text);
+}
+
+html.dark .flyout-btn--theme:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fde047;
+}
+
+html.dark .flyout-btn--logout:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+}
+
+html.dark .flyout-rol-badge {
+  background: rgba(214, 135, 145, 0.15);
+  color: var(--rose);
+}
+
+html.dark .btn-aprobar {
+  background: #7a1d22;
+  color: #ffffff;
+}
+
+html.dark .btn-aprobar:hover:not(:disabled) {
+  background: #96282e;
+}
+
+html.dark .stat-icon--blue   { background: rgba(59, 130, 246, 0.15); color: #93c5fd; }
+html.dark .stat-icon--green  { background: rgba(34, 197, 94, 0.15); color: #86efac; }
+html.dark .stat-icon--purple { background: rgba(168, 85, 247, 0.15); color: #d8b4fe; }
+html.dark .stat-icon--orange { background: rgba(234, 179, 8, 0.15); color: #fde047; }
+html.dark .stat-card--alert  { background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); }
+
+html.dark .badge-admin { background: rgba(239, 68, 68, 0.18); color: #fca5a5; }
+html.dark .badge-pro   { background: rgba(59, 130, 246, 0.18); color: #93c5fd; }
+
+html.dark .avatar-config-summary {
+  background: var(--cream-dark);
+  border-color: var(--border);
+}
+
+html.dark .notice-box {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--border);
 }
