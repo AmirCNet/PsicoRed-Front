@@ -680,14 +680,14 @@ onMounted(() => {
 }
 
 .theme-preview--dark {
-  background: #130e11;
+  background: #0e0d11;
 }
 
 .theme-preview--dark .preview-sidebar {
   width: 28%;
   height: 100%;
-  background: #16080b;
-  border-right: 1px solid #2e1319;
+  background: #12090e;
+  border-right: 1px solid rgba(229, 115, 133, 0.12);
 }
 
 .theme-preview--dark .preview-content {
@@ -701,15 +701,15 @@ onMounted(() => {
 .theme-preview--dark .preview-line {
   height: 6px;
   width: 60%;
-  background: #f498a5;
+  background: #e57385;
   border-radius: 3px;
 }
 
 .theme-preview--dark .preview-card {
   flex: 1;
-  background: #20171e;
+  background: #1a1720;
   border-radius: 4px;
-  border: 1px solid #382733;
+  border: 1px solid #2e2634;
 }
 
 .theme-preview--system {
@@ -727,7 +727,7 @@ onMounted(() => {
 .preview-split-right {
   width: 50%;
   height: 100%;
-  background: #130e11;
+  background: #0e0d11;
 }
 
 .theme-option-info {
