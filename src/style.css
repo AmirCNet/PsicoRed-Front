@@ -199,3 +199,62 @@ html.dark .notice-box {
   background: rgba(255, 255, 255, 0.03);
   border-color: var(--border);
 }
+
+/* ── Botón flotante superior derecho en modo oscuro */
+html.dark .quick-theme-toggle {
+  background: rgba(27, 27, 34, 0.88);
+  border-color: var(--border);
+  color: var(--rose);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+}
+
+html.dark .quick-theme-toggle:hover {
+  background: rgba(36, 36, 45, 0.95);
+  border-color: var(--rose);
+  color: #ffffff;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
+}
+
+html.dark .quick-theme-toggle .toggle-icon-wrap {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fde047;
+}
+
+/* ── Configuración de tema en perfil para modo oscuro */
+html.dark .theme-option-card {
+  background: var(--cream-dark);
+  border-color: var(--border);
+}
+
+html.dark .theme-option-card:hover {
+  border-color: var(--rose);
+}
+
+html.dark .theme-option-card.active {
+  border-color: var(--rose);
+  background: var(--white);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .theme-check-icon {
+  background: var(--rose);
+  color: #121215;
+}
+
+html.dark .theme-toggle-switch-row {
+  background: var(--cream-dark);
+  border-color: var(--border);
+}
+
+html.dark .toggle-switch .slider {
+  background-color: #38343e;
+}
+
+html.dark .toggle-switch input:checked + .slider {
+  background-color: #8c242b;
+}
+
+html.dark .theme-current-badge {
+  background: rgba(214, 135, 145, 0.15);
+  color: var(--rose);
+}

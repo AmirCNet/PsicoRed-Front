@@ -14,9 +14,18 @@
   <script>
     (function () {
       try {
-        var savedTheme = localStorage.getItem('psicored_theme');
+        var mode = localStorage.getItem('psicored_theme_mode');
+        var legacy = localStorage.getItem('psicored_theme');
         var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        var isDark = false;
+        if (mode === 'dark') {
+          isDark = true;
+        } else if (mode === 'light') {
+          isDark = false;
+        } else {
+          isDark = legacy === 'dark' || (legacy !== 'light' && prefersDark);
+        }
+        if (isDark) {
           document.documentElement.classList.add('dark');
           document.documentElement.setAttribute('data-theme', 'dark');
         } else {
