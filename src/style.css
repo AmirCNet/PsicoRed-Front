@@ -3,6 +3,8 @@
   --cream-dark: #f0e8cf;
   --wine: #4d0e0b;
   --wine-light: #7a1a16;
+  --wine-btn: #4d0e0b;
+  --wine-btn-hover: #7a1a16;
   --rose: #c97b84;
   --rose-light: #f3d4d8;
   --text: #3b1a18;
@@ -25,33 +27,35 @@
   color-scheme: light;
 }
 
-/* ═══ MODO OSCURO (Dark Theme) ═══ */
+/* ═══ MODO OSCURO (Dark Theme - Garnet Velvet & Warm Obsidian) ═══ */
 html.dark,
 :root.dark,
 [data-theme="dark"] {
-  --cream: #121215;
-  --cream-dark: #191920;
-  --wine: #e2848c;
-  --wine-light: #f09ea5;
-  --rose: #d88992;
-  --rose-light: #2c1619;
-  --text: #f3eff2;
-  --text-soft: #a89fa5;
-  --white: #1b1b22;
-  --card-bg: #1b1b22;
-  --input-bg: #16161c;
-  --error: #f87171;
-  --error-bg: #321517;
-  --border: #2e2a33;
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.6);
+  --cream: #130e11;
+  --cream-dark: #1a1318;
+  --wine: #f498a5;
+  --wine-light: #fbb8c2;
+  --wine-btn: #841e26;
+  --wine-btn-hover: #9e2832;
+  --rose: #e59ca6;
+  --rose-light: #341b23;
+  --text: #f7f2f5;
+  --text-soft: #b3a0a9;
+  --white: #20171e;
+  --card-bg: #20171e;
+  --input-bg: #171015;
+  --error: #fb7185;
+  --error-bg: #3d1419;
+  --border: #382733;
+  --border-subtle: rgba(244, 152, 165, 0.12);
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.6);
   --text-shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.8);
-  --text-shadow-brand: 0 2px 8px rgba(0, 0, 0, 0.6);
-  --text-shadow-contrast: 0 1px 3px rgba(0, 0, 0, 0.8);
-  --sidebar-bg: #150607;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --text-shadow-brand: 0 2px 12px rgba(244, 152, 165, 0.3);
+  --text-shadow-contrast: 0 1px 3px rgba(0, 0, 0, 0.9);
+  --sidebar-bg: #16080b;
+  --sidebar-border: #2e1319;
   color-scheme: dark;
 }
 
@@ -88,46 +92,56 @@ body {
 
 html.dark ::selection {
   background-color: #5d252b;
-  color: #f3eff2;
+  color: #f7f2f5;
 }
 
 html.dark ::-moz-selection {
   background-color: #5d252b;
-  color: #f3eff2;
+  color: #f7f2f5;
 }
 
-/* ── Ajustes globales para Modo Oscuro */
+/* ══════════════════════════════════════════════════════════════════════
+   ESTILOS GLOBALES DE MODO OSCURO PARA TODOS LOS COMPONENTES Y PÁGINAS
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Barra Lateral & Layout Principal ── */
 html.dark .sidebar {
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
 }
 
-html.dark h1,
-html.dark h2,
-html.dark h3,
-html.dark .section-title,
-html.dark .card-section-title {
+html.dark .sidebar-header {
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+html.dark .sidebar-footer {
+  border-top: 1px solid var(--sidebar-border);
+}
+
+html.dark .sidebar-edge-tab {
+  background: var(--sidebar-bg);
+  border-color: var(--sidebar-border);
   color: var(--wine);
 }
 
-html.dark input,
-html.dark textarea,
-html.dark select {
-  background: var(--input-bg);
-  color: var(--text);
-  border-color: var(--border);
+html.dark .nav-item {
+  color: rgba(247, 242, 245, 0.75);
 }
 
-html.dark input:focus,
-html.dark textarea:focus,
-html.dark select:focus {
-  border-color: var(--rose);
+html.dark .nav-item:hover {
+  background: rgba(244, 152, 165, 0.1);
+  color: var(--wine);
+}
+
+html.dark .nav-item.router-link-active {
+  background: var(--rose-light);
+  color: var(--wine);
 }
 
 html.dark .user-flyout-card {
   background: var(--white);
   border-color: var(--border);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
 }
 
 html.dark .user-flyout-card::before {
@@ -144,75 +158,44 @@ html.dark .flyout-divider {
   background: var(--border);
 }
 
-html.dark .flyout-btn--profile {
-  color: var(--text);
-}
-
-html.dark .flyout-btn--profile:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--rose);
-}
-
+html.dark .flyout-btn--profile,
 html.dark .flyout-btn--theme {
   color: var(--text);
 }
 
+html.dark .flyout-btn--profile:hover,
 html.dark .flyout-btn--theme:hover {
   background: rgba(255, 255, 255, 0.06);
-  color: #fde047;
+  color: var(--wine);
+}
+
+html.dark .flyout-btn--logout {
+  color: var(--error);
 }
 
 html.dark .flyout-btn--logout:hover {
-  background: rgba(239, 68, 68, 0.12);
-  color: #fca5a5;
+  background: rgba(251, 113, 133, 0.12);
+  color: #fda4af;
 }
 
 html.dark .flyout-rol-badge {
-  background: rgba(214, 135, 145, 0.15);
-  color: var(--rose);
+  background: var(--rose-light);
+  color: var(--wine);
 }
 
-html.dark .btn-aprobar {
-  background: #7a1d22;
-  color: #ffffff;
-}
-
-html.dark .btn-aprobar:hover:not(:disabled) {
-  background: #96282e;
-}
-
-html.dark .stat-icon--blue   { background: rgba(59, 130, 246, 0.15); color: #93c5fd; }
-html.dark .stat-icon--green  { background: rgba(34, 197, 94, 0.15); color: #86efac; }
-html.dark .stat-icon--purple { background: rgba(168, 85, 247, 0.15); color: #d8b4fe; }
-html.dark .stat-icon--orange { background: rgba(234, 179, 8, 0.15); color: #fde047; }
-html.dark .stat-card--alert  { background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); }
-
-html.dark .badge-admin { background: rgba(239, 68, 68, 0.18); color: #fca5a5; }
-html.dark .badge-pro   { background: rgba(59, 130, 246, 0.18); color: #93c5fd; }
-
-html.dark .avatar-config-summary {
-  background: var(--cream-dark);
-  border-color: var(--border);
-}
-
-html.dark .notice-box {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: var(--border);
-}
-
-/* ── Botón flotante superior derecho en modo oscuro */
+/* ── 2. Botón Rápido Superior Derecho ── */
 html.dark .quick-theme-toggle {
-  background: rgba(27, 27, 34, 0.88);
+  background: rgba(32, 23, 30, 0.92);
   border-color: var(--border);
-  color: var(--rose);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  color: var(--wine);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
 }
 
 html.dark .quick-theme-toggle:hover {
-  background: rgba(36, 36, 45, 0.95);
+  background: rgba(42, 31, 39, 0.98);
   border-color: var(--rose);
   color: #ffffff;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.6);
 }
 
 html.dark .quick-theme-toggle .toggle-icon-wrap {
@@ -220,41 +203,440 @@ html.dark .quick-theme-toggle .toggle-icon-wrap {
   color: #fde047;
 }
 
-/* ── Configuración de tema en perfil para modo oscuro */
+/* ── 3. Tipografías, Títulos y Encabezados en Todas las Vistas ── */
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark .page-title,
+html.dark .page-header h1,
+html.dark .section-title,
+html.dark .card-section-title,
+html.dark .modal-header h2,
+html.dark .modal-header h3,
+html.dark .title,
+html.dark .login-title,
+html.dark .card-nombre,
+html.dark .dash-welcome h1 {
+  color: var(--wine) !important;
+}
+
+html.dark .page-subtitle,
+html.dark .card-section-desc,
+html.dark .modal-subtitle,
+html.dark .subtitle,
+html.dark .login-subtitle,
+html.dark .email,
+html.dark .stat-label,
+html.dark .card-info,
+html.dark .honorarios-label,
+html.dark .empty-state,
+html.dark .loading-state,
+html.dark .panel-loading,
+html.dark .panel-empty {
+  color: var(--text-soft) !important;
+}
+
+/* ── 4. Tarjetas, Listas y Contenedores ── */
+html.dark .card,
+html.dark .perfil-card,
+html.dark .stat-card,
+html.dark .dash-header,
+html.dark .quick-access,
+html.dark .pendientes-panel,
+html.dark .filters-bar,
+html.dark .list-item,
+html.dark .turno-item,
+html.dark .derivacion-item,
+html.dark .auth-box,
+html.dark .completar-card,
+html.dark .pendiente-card,
+html.dark .notfound-card {
+  background: var(--white) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+  color: var(--text) !important;
+}
+
+html.dark .list-item:hover,
+html.dark .turno-item:hover,
+html.dark .derivacion-item:hover,
+html.dark .card:hover,
+html.dark .stat-card:hover {
+  border-color: var(--rose) !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark .quick-card,
+html.dark .pendiente-item {
+  background: var(--cream-dark) !important;
+  border: 1.5px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+html.dark .quick-card:hover {
+  background: var(--rose-light) !important;
+  border-color: var(--rose) !important;
+  color: var(--wine) !important;
+}
+
+html.dark .card-honorarios,
+html.dark .stat-value {
+  color: var(--text) !important;
+}
+
+/* ── 5. Formularios, Filtros e Inputs ── */
+html.dark input,
+html.dark textarea,
+html.dark select,
+html.dark .filters-bar input,
+html.dark .filters-bar select,
+html.dark .filtro-estado {
+  background: var(--input-bg) !important;
+  color: var(--text) !important;
+  border: 1.5px solid var(--border) !important;
+}
+
+html.dark input:focus,
+html.dark textarea:focus,
+html.dark select:focus,
+html.dark .filters-bar input:focus,
+html.dark .filters-bar select:focus,
+html.dark .filtro-estado:focus {
+  border-color: var(--rose) !important;
+  box-shadow: 0 0 0 2px rgba(244, 152, 165, 0.15) !important;
+  outline: none !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #7d6b75 !important;
+}
+
+html.dark label,
+html.dark .filter-group label {
+  color: var(--text-soft) !important;
+}
+
+html.dark .input-disabled {
+  background: #171115 !important;
+  color: var(--text-soft) !important;
+  border-color: #2e2029 !important;
+}
+
+/* ── 6. Modales (Profesionales, Pacientes, Turnos, Derivaciones, Avatar) ── */
+html.dark .modal,
+html.dark .modal-overlay,
+html.dark .modal-backdrop,
+html.dark .avatar-modal-overlay {
+  background: rgba(10, 6, 9, 0.82) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+html.dark .modal-contenido,
+html.dark .modal-content,
+html.dark .modal-card,
+html.dark .avatar-modal-card {
+  background: var(--white) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65) !important;
+  color: var(--text) !important;
+}
+
+html.dark .modal-header {
+  border-bottom: 1px solid var(--border) !important;
+}
+
+html.dark .modal-footer {
+  border-top: 1px solid var(--border) !important;
+}
+
+html.dark .btn-cerrar,
+html.dark .btn-close {
+  color: var(--text-soft) !important;
+}
+
+html.dark .btn-cerrar:hover,
+html.dark .btn-close:hover {
+  background: var(--rose-light) !important;
+  color: var(--wine) !important;
+}
+
+html.dark .detalle-campo label {
+  color: var(--text-soft) !important;
+}
+
+html.dark .detalle-campo p {
+  color: var(--text) !important;
+}
+
+html.dark .detalle-text {
+  background: var(--cream-dark) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* Stage y pestañas del Avatar Customizer Modal */
+html.dark .preview-stage {
+  background: linear-gradient(180deg, var(--cream-dark) 0%, #150f14 100%) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+html.dark .preview-tag {
+  background: var(--white) !important;
+  color: var(--wine) !important;
+  border: 1px solid var(--border) !important;
+}
+
+html.dark .hue-tag-auto {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text) !important;
+}
+
+html.dark .tabs-nav {
+  background: var(--cream-dark) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+html.dark .tab-btn {
+  color: var(--text-soft) !important;
+}
+
+html.dark .tab-btn:hover {
+  color: var(--wine) !important;
+  background: rgba(244, 152, 165, 0.05) !important;
+}
+
+html.dark .tab-btn.active {
+  color: var(--wine) !important;
+  border-bottom-color: var(--wine) !important;
+  background: var(--white) !important;
+}
+
+html.dark .option-card {
+  background: var(--cream-dark) !important;
+  border: 1.5px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+html.dark .option-card:hover {
+  border-color: var(--rose) !important;
+  background: var(--white) !important;
+}
+
+html.dark .option-card.selected {
+  border-color: var(--wine) !important;
+  background: var(--white) !important;
+  box-shadow: 0 0 0 1px var(--wine) !important;
+}
+
+/* ── 7. Botones de Acción ── */
+html.dark .btn-primary,
+html.dark .btn-agregar,
+html.dark .btn-guardar,
+html.dark .btn-aprobar,
+html.dark button[type="submit"]:not(.theme-option-card) {
+  background: var(--wine-btn) !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+html.dark .btn-primary:hover:not(:disabled),
+html.dark .btn-agregar:hover:not(:disabled),
+html.dark .btn-guardar:hover:not(:disabled),
+html.dark .btn-aprobar:hover:not(:disabled),
+html.dark button[type="submit"]:not(.theme-option-card):hover:not(:disabled) {
+  background: var(--wine-btn-hover) !important;
+}
+
+html.dark .btn-ghost {
+  border: 1.5px solid var(--border) !important;
+  color: var(--wine) !important;
+  background: transparent !important;
+}
+
+html.dark .btn-ghost:hover {
+  background: var(--rose-light) !important;
+}
+
+html.dark .btn-editar,
+html.dark .btn-cancelar {
+  background: #2a1f26 !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+
+html.dark .btn-editar:hover,
+html.dark .btn-cancelar:hover {
+  background: #362932 !important;
+  color: #ffffff !important;
+}
+
+html.dark .btn-eliminar,
+html.dark .btn-cancelar-turno {
+  background: rgba(251, 113, 133, 0.15) !important;
+  color: #fda4af !important;
+  border: 1px solid rgba(251, 113, 133, 0.25) !important;
+}
+
+html.dark .btn-eliminar:hover,
+html.dark .btn-cancelar-turno:hover {
+  background: rgba(251, 113, 133, 0.25) !important;
+}
+
+html.dark .btn-icon {
+  background: #2a1f26 !important;
+  color: var(--text-soft) !important;
+  border: 1px solid var(--border) !important;
+}
+
+html.dark .btn-icon:hover {
+  background: #362932 !important;
+  color: var(--wine) !important;
+  border-color: var(--rose) !important;
+}
+
+html.dark .btn-customize-avatar {
+  background: var(--wine-btn) !important;
+  color: #ffffff !important;
+}
+
+html.dark .btn-customize-avatar:hover {
+  background: var(--wine-btn-hover) !important;
+}
+
+/* ── 8. Badges, Chips y Estados ── */
+html.dark .badge-esp,
+html.dark .badge-rol,
+html.dark .email-badge {
+  background: var(--rose-light) !important;
+  color: var(--wine) !important;
+  border: 1px solid rgba(244, 152, 165, 0.15) !important;
+}
+
+html.dark .badge-modalidad {
+  background: #2a1f26 !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+
+html.dark .badge-admin {
+  background: rgba(251, 113, 133, 0.18) !important;
+  color: #fca5a5 !important;
+}
+
+html.dark .badge-pro {
+  background: rgba(59, 130, 246, 0.18) !important;
+  color: #93c5fd !important;
+}
+
+html.dark .badge-count {
+  background: var(--wine-btn) !important;
+  color: #ffffff !important;
+}
+
+html.dark .badge-estado.activo,
+html.dark .badge-estado.confirmado,
+html.dark .derivacion-item.aceptada {
+  background: rgba(34, 197, 94, 0.16) !important;
+  color: #86efac !important;
+}
+
+html.dark .badge-estado.pendiente,
+html.dark .derivacion-item.pendiente {
+  background: rgba(234, 179, 8, 0.16) !important;
+  color: #fde047 !important;
+}
+
+html.dark .badge-estado.inactivo,
+html.dark .badge-estado.cancelado,
+html.dark .derivacion-item.rechazada {
+  background: rgba(251, 113, 133, 0.16) !important;
+  color: #fca5a5 !important;
+}
+
+html.dark .badge-estado.realizado,
+html.dark .derivacion-item.completada {
+  background: rgba(59, 130, 246, 0.16) !important;
+  color: #93c5fd !important;
+}
+
+/* Iconos de estadísticas */
+html.dark .stat-icon--blue   { background: rgba(59, 130, 246, 0.16) !important; color: #93c5fd !important; }
+html.dark .stat-icon--green  { background: rgba(34, 197, 94, 0.16) !important; color: #86efac !important; }
+html.dark .stat-icon--purple { background: rgba(168, 85, 247, 0.16) !important; color: #d8b4fe !important; }
+html.dark .stat-icon--orange { background: rgba(234, 179, 8, 0.16) !important; color: #fde047 !important; }
+html.dark .stat-card--alert  { background: rgba(245, 158, 11, 0.12) !important; border-color: rgba(245, 158, 11, 0.35) !important; }
+
+/* ── 9. Notificaciones, Alertas y Resúmenes ── */
+html.dark .notice-box {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: var(--border) !important;
+}
+
+html.dark .avatar-config-summary {
+  background: var(--cream-dark) !important;
+  border-color: var(--border) !important;
+}
+
+html.dark .avatar-display-box {
+  background: var(--cream-dark) !important;
+  border: 1px solid var(--border) !important;
+}
+
+html.dark .icon-wrap {
+  background: var(--rose-light) !important;
+  color: var(--wine) !important;
+}
+
+html.dark .step-dot {
+  background: #2a1f26 !important;
+  color: var(--text-soft) !important;
+}
+
+html.dark .step.active .step-dot {
+  background: var(--wine-btn) !important;
+  color: #ffffff !important;
+}
+
+html.dark .step.active {
+  color: var(--wine) !important;
+}
+
+/* ── 10. Vista Perfil: Configuración de Tema ── */
 html.dark .theme-option-card {
-  background: var(--cream-dark);
-  border-color: var(--border);
+  background: var(--cream-dark) !important;
+  border-color: var(--border) !important;
 }
 
 html.dark .theme-option-card:hover {
-  border-color: var(--rose);
+  border-color: var(--rose) !important;
 }
 
 html.dark .theme-option-card.active {
-  border-color: var(--rose);
-  background: var(--white);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  border-color: var(--rose) !important;
+  background: var(--white) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45) !important;
 }
 
 html.dark .theme-check-icon {
-  background: var(--rose);
-  color: #121215;
+  background: var(--rose) !important;
+  color: #130e11 !important;
 }
 
 html.dark .theme-toggle-switch-row {
-  background: var(--cream-dark);
-  border-color: var(--border);
+  background: var(--cream-dark) !important;
+  border-color: var(--border) !important;
 }
 
 html.dark .toggle-switch .slider {
-  background-color: #38343e;
+  background-color: #3b2834 !important;
 }
 
 html.dark .toggle-switch input:checked + .slider {
-  background-color: #8c242b;
+  background-color: var(--wine-btn) !important;
 }
 
 html.dark .theme-current-badge {
-  background: rgba(214, 135, 145, 0.15);
-  color: var(--rose);
+  background: var(--rose-light) !important;
+  color: var(--wine) !important;
 }
