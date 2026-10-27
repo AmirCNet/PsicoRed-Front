@@ -116,6 +116,8 @@
               />
             </div>
           </div>
+        </div>
+
         <!-- Sección: Apariencia y Tema -->
         <div class="perfil-card">
           <div class="card-header-flex">
